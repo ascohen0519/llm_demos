@@ -4,19 +4,16 @@ import joblib
 import streamlit as st
 import google.generativeai as genai
 
-MODEL_ROLE = 'ai'
-
 col1, col2 = st.columns(2)
 
-AI_AVATAR_ICON = col1.selectbox('What would you like your robots avatar to be?',
+ai_avatar = col1.selectbox('What would you like your robots avatar to be?',
                               ["", "🔆","🌟","✨","🌈","🚀","🎉","🏆","🎱"],
                               help='Cmon choose')
-USER_AVATAR_ICON = col2.selectbox('What would you like your avatar to be?',
+user_avatar = col2.selectbox('What would you like your avatar to be?',
                                 ["", "🐀","🐁","🐋","🐉","🐊","🐉","🐈","🐇","🐌","🐍","🐎","🐑","🐒","🐓","🐔","🐕","🐟","🐞","🐝","🐜","🐞","🐝","🐜","🐛","🐚","🐙","🐘","🐗","🐖","🐠","🐡","🐢","🐣","🐤","🐥","🐦","🐧","🐨","🐩","🐳","🐲","🐱","🐰","🐯","🐮","🐭","🐬","🐫","🐪","🐴","🐵","🐶","🐷","🐸","🐹","🐺","🐻","🐼"],
                                 help='Cmon choose')
 
-if AI_AVATAR_ICON != '' and USER_AVATAR_ICON != '':
-
+if ai_avatar != '' and user_avatar != '':
 
     try:
         os.mkdir('data/')
@@ -55,7 +52,7 @@ if AI_AVATAR_ICON != '' and USER_AVATAR_ICON != '':
 
     if prompt := st.chat_input('Your message here...'):
 
-        with st.chat_message('user', avatar=USER_AVATAR_ICON):
+        with st.chat_message('user', avatar=user_avatar):
             st.markdown(prompt)
 
         st.session_state.messages.append(
@@ -71,8 +68,8 @@ if AI_AVATAR_ICON != '' and USER_AVATAR_ICON != '':
         )
 
         with st.chat_message(
-            name=MODEL_ROLE,
-            avatar=AI_AVATAR_ICON,
+            name='ai',
+            avatar=ai_avatar,
         ):
             message_placeholder = st.empty()
             full_response = ''
@@ -91,9 +88,9 @@ if AI_AVATAR_ICON != '' and USER_AVATAR_ICON != '':
 
         st.session_state.messages.append(
             dict(
-                role=MODEL_ROLE,
+                role='ai',
                 content=st.session_state.chat.history[-1].parts[0].text,
-                avatar=AI_AVATAR_ICON,
+                avatar=ai_avatar,
             )
         )
         st.session_state.gemini_history = st.session_state.chat.history

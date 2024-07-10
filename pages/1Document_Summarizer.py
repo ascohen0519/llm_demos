@@ -3,13 +3,14 @@ import pdfplumber
 import time
 import google.generativeai as genai
 
+# User input to determine temperature setting of summarization model
 d_creativity = {'Very creative': 1, 'Moderately creative': .5, 'Not creative at all': 0}
 
+# Prompt template for summarization.
 summary_prompt = """The following is a document.
 DOCUMENT: %s
 INSTRUCTIONS: Please write your summary in %s format. %s.
 SUMMARY:
-
 """
 
 def click_button(button):
@@ -110,7 +111,7 @@ if document_type != '':
 
     if bullets_or_summary != '':
 
-      max_bullets, max_lenght = 0, 0
+      max_bullets, max_length = 0, 0
 
       if 'Bullets' in bullets_or_summary:
         max_bullets = st.select_slider("How many bullets for the summary?",
