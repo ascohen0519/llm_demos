@@ -45,7 +45,7 @@ st.write('''
 
 document_type = st.selectbox("What type of document would you like to ask questions about?",
               ['', 'Manually input text', 'PDF'],
-              help="""Cmon choose""")
+              help="""You can either upload a PDF document, or manually copy & paste text to summarize""")
 
 if document_type != '':
   document = []

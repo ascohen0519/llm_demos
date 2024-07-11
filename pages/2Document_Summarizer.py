@@ -67,7 +67,7 @@ st.write('''
 
 document_type = st.selectbox("What type of document would you like to summarize?",
               ['', 'Manually input text', 'PDF'],
-              help="""Cmon choose""")
+              help="""You can either upload a PDF document, or manually copy & paste text to summarize""")
 
 if document_type != '':
   document = []
@@ -103,8 +103,7 @@ if document_type != '':
                 ''')
 
     bullets_or_summary = st.selectbox("What format would you like the summary in?",
-                                      ['', 'Bullets', 'Paragraph', 'Bullets & Paragraph'],
-                                      help="""Cmon choose""")
+                                      ['', 'Bullets', 'Paragraph', 'Bullets & Paragraph'])
 
     if 'summarize' not in st.session_state:
       st.session_state.summarize = False
@@ -115,13 +114,11 @@ if document_type != '':
 
       if 'Bullets' in bullets_or_summary:
         max_bullets = st.select_slider("How many bullets for the summary?",
-                                       options=[''] + list(range(2, 11)),
-                                       help="""Cmon choose""")
+                                       options=[''] + list(range(2, 11)))
 
       if 'Paragraph' in bullets_or_summary:
         max_length = st.select_slider("How many characters for the summary?",
-                                      options=[''] + list(range(50, 2001, 50)),
-                                      help="""Cmon choose""")
+                                      options=[''] + list(range(50, 2001, 50)))
 
       if (
               (bullets_or_summary == 'Bullets' and max_bullets != '') or
@@ -130,7 +127,10 @@ if document_type != '':
 
         creativity = st.selectbox("How creative would you like the summary to be?",
                                   ['', 'Very creative', 'Moderately creative', 'Not creative at all'],
-                                  help="""Cmon choose""")
+                                  help="""
+                                  This selection dictates how predicatable (not creative) or random (very creative)
+                                  the response from your AI can be
+                                  """)
 
         if creativity != '':
           st.write("### Generate Summary")

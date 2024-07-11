@@ -15,12 +15,12 @@ if not st.session_state['can_run']:
 
 col1, col2 = st.columns(2)
 
-ai_avatar = col1.selectbox('What would you like your robots avatar to be?',
+ai_avatar = col1.selectbox('What would you like your AI\'s avatar to be?',
                               ["", "🔆","🌟","✨","🌈","🚀","🎉","🏆","🎱"],
-                              help='Cmon choose')
+                              help='Please select a character to use for your models responses')
 user_avatar = col2.selectbox('What would you like your avatar to be?',
                                 ["", "🐀","🐁","🐋","🐉","🐊","🐉","🐈","🐇","🐌","🐍","🐎","🐑","🐒","🐓","🐔","🐕","🐟","🐞","🐝","🐜","🐞","🐝","🐜","🐛","🐚","🐙","🐘","🐗","🐖","🐠","🐡","🐢","🐣","🐤","🐥","🐦","🐧","🐨","🐩","🐳","🐲","🐱","🐰","🐯","🐮","🐭","🐬","🐫","🐪","🐴","🐵","🐶","🐷","🐸","🐹","🐺","🐻","🐼"],
-                                help='Cmon choose')
+                                help='Please select a character to use for your responses')
 
 if ai_avatar != '' and user_avatar != '':
 
