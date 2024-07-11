@@ -4,6 +4,15 @@ import joblib
 import streamlit as st
 import google.generativeai as genai
 
+st.title("AI Chatbot")
+
+if 'can_run' not in st.session_state:
+    st.session_state['can_run'] = False
+
+if not st.session_state['can_run']:
+  st.markdown('Please input a valid API key')
+  st.stop()
+
 col1, col2 = st.columns(2)
 
 ai_avatar = col1.selectbox('What would you like your robots avatar to be?',
@@ -20,7 +29,7 @@ if ai_avatar != '' and user_avatar != '':
     except:
         pass
 
-    st.write('# Chat with AI✨ ')
+    st.write('### Chat with AI✨ ')
 
     if 'ran' not in st.session_state:
         st.session_state.ran = False
