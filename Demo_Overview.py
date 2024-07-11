@@ -34,6 +34,13 @@ except:
 
 "#### Please choose a demo from the sidebar on the left:"
 
+"## Chatbot"
+
+"""
+Chat with a bot about a topic of interest. The bot will remember your conversation from the start and can 
+interact with you as with a normal conversation. Select your avatars and start chatting. 
+"""
+
 "## Document Summarizer"
 
 """
@@ -42,16 +49,10 @@ for the summary to be generated, including level of creativity, length and forma
 """
 
 "## Document Q&A"
+"#### (testing in progress)"
 
 """
 Upload PDFs or manually copy and paste a body of text. After a brief period, you'll be able to ask questions
 about your upload and receive answers. You can also set (advanced) parameters for this, including chunk
-size, chunk overlap, and how many potential answer results you would like to see
-"""
-
-"## Chatbot"
-
-"""
-Chat with a bot about a topic of interest. The bot will remember your conversation from the start and can 
-interact with you as with a normal conversation. Select your avatars and start chatting. 
+size, chunk overlap, and how many potential answer results you would like to see.
 """

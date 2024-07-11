@@ -54,7 +54,7 @@ if 'can_run' not in st.session_state:
     st.session_state['can_run'] = False
 
 if not st.session_state['can_run']:
-  st.markdown('Please input a valid API key')
+  st.markdown('Please input a valid API key on the Demo Overview page')
   st.stop()
 
 genai.configure(api_key=st.session_state['gemini_api_key'])
