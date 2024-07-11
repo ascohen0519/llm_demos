@@ -68,6 +68,7 @@ if ai_avatar != '' and user_avatar != '':
             dict(
                 role='user',
                 content=prompt,
+                avatar=user_avatar
             )
         )
 
