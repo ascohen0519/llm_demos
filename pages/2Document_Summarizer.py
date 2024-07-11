@@ -40,7 +40,7 @@ def SummarizeDocument(document, creativity, bullets_or_summary, max_bullets, max
     summary_format = 'a single paragraph and bullets'
     length_limit = paragraph_limit + ', and ' + bullets_limit
   else:
-    return 'WHOA BABY THAT\'S AN ERROR!'
+    return 'error'
 
   text_to_summarize = ['. '.join(document)][0]
 
