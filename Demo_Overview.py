@@ -3,7 +3,7 @@ import google.generativeai as genai
 import time
 
 st.title("💬 LLM App Demos, by Aaron Cohen")
-st.caption("Powered by Streamlit, [source code](https://github.com/ascohen0519/summarizer_demo)")
+st.caption("Powered by Streamlit, [source code](https://github.com/ascohen0519/llm_demos)")
 
 "### Instructions"
 """
