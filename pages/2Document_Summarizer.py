@@ -141,7 +141,9 @@ if document_type != '':
             with st.spinner('Wait for it...'):
               time.sleep(5)
 
-            st.markdown(SummarizeDocument(document, creativity, bullets_or_summary, max_bullets, max_length))
-            st.session_state.summarize = False
-
-            st.write('\nThank you for trying this demo. Have a nice day!')
+            try:
+              st.markdown(SummarizeDocument(document, creativity, bullets_or_summary, max_bullets, max_length))
+              st.session_state.summarize = False
+              st.write('\nThank you for trying this demo. Have a nice day!')
+            except:
+              st.write('Not a valid document type, please try again')
