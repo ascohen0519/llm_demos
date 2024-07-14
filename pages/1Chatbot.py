@@ -6,6 +6,11 @@ import google.generativeai as genai
 
 st.title("AI Chatbot")
 
+# Saves prompt and response to message history for future model input and chat window display.
+def append_message(role, content):
+    st.session_state.messages.append({'role': role, 'parts': [content]})
+
+# If not valid API key entered, direct user to initial Demo Overview page.
 if 'can_run' not in st.session_state:
     st.session_state['can_run'] = False
 
@@ -13,103 +18,81 @@ if not st.session_state['can_run']:
   st.markdown('Please input a valid API key on the Demo Overview page')
   st.stop()
 
+# User selections.
 col1, col2 = st.columns(2)
 
 ai_avatar = col1.selectbox('What would you like your AI\'s avatar to be?',
-                              ["", "🔆","🌟","✨","🌈","🚀","🎉","🏆","🎱"],
+                              ['', '🔆','🌟','✨','🌈','🚀','🎉','🏆','🎱'],
                               help='Please select a character to use for your models responses')
+
 user_avatar = col2.selectbox('What would you like your avatar to be?',
-                                ["", "🐀","🐁","🐋","🐉","🐊","🐉","🐈","🐇","🐌","🐍","🐎","🐑","🐒","🐓","🐔","🐕","🐟","🐞","🐝","🐜","🐞","🐝","🐜","🐛","🐚","🐙","🐘","🐗","🐖","🐠","🐡","🐢","🐣","🐤","🐥","🐦","🐧","🐨","🐩","🐳","🐲","🐱","🐰","🐯","🐮","🐭","🐬","🐫","🐪","🐴","🐵","🐶","🐷","🐸","🐹","🐺","🐻","🐼"],
+                                ['', '🐀','🐁','🐋','🐉','🐊','🐉','🐈','🐇','🐌','🐍','🐎','🐑','🐒','🐓','🐔','🐕','🐟','🐞','🐝','🐜','🐞','🐝','🐜','🐛','🐚','🐙','🐘','🐗','🐖','🐠','🐡','🐢','🐣','🐤','🐥','🐦','🐧','🐨','🐩','🐳','🐲','🐱','🐰','🐯','🐮','🐭','🐬','🐫','🐪','🐴','🐵','🐶','🐷','🐸','🐹','🐺','🐻','🐼'],
                                 help='Please select a character to use for your responses')
 
-if ai_avatar != '' and user_avatar != '':
+ai_name = col1.text_input('What would you like your AI\'s name to be?', '')
 
-    try:
-        os.mkdir('data/')
-    except:
-        pass
+ai_temp = col2.selectbox('How creative would you like your AI to be?',
+                                  ['', 'Very creative', 'Moderately creative', 'Not creative at all'],
+                                  help="""
+                                  This selection dictates how predicatable (not creative) or random (very creative)
+                                  the response from your AI can be
+                                  """)
+d_creativity = {'Very creative': 1, 'Moderately creative': .5, 'Not creative at all': 0}
+
+d_avatar = {'model': ai_avatar, 'user': user_avatar}
+
+# If all choices selected, initiate model and open chat window.
+if ai_avatar != '' and user_avatar != '' and ai_name != '' and ai_temp != '':
 
     st.write('### Chat with AI✨ ')
 
+    # If first run, instantiate model and create empty list to append future prompts for ongoing context.
     if 'ran' not in st.session_state:
         st.session_state.ran = False
 
     if not st.session_state.ran:
+        # Create message history
         st.session_state.messages = []
-        st.session_state.gemini_history = []
+
+        # Configure and instantiate model as general purpose chatbot, with user input temperature setting.
+        genai.configure(api_key=st.session_state['gemini_api_key'])
+        st.session_state.model = genai.GenerativeModel('gemini-1.5-flash',
+                                                       system_instruction='You are a general purpose chatbot.')
+
+        # Display welcome message
+        intro = 'Hello, my name is %s, how may I help you today?' % ai_name
+        append_message('model', intro)
         st.session_state.ran = True
-        print('new_cache made')
 
-    st.session_state.model = genai.GenerativeModel('gemini-pro')
-    st.session_state.chat = st.session_state.model.start_chat(
-        history=st.session_state.gemini_history,
-    )
-
-
+    # For all messages in history, re-write.
     for message in st.session_state.messages:
-        with st.chat_message(
-            name=message['role'],
-            avatar=message.get('avatar'),
-        ):
-            st.markdown(message['content'])
+        with st.chat_message(name=message['role'], avatar=d_avatar[message['role']]):
+            st.markdown(message['parts'][0])
 
-    if 'chat_id' not in st.session_state:
-        st.session_state.chat_id = False
-    if 'chat_title' not in st.session_state:
-        st.session_state.chat_title = False
-
-
+    # Once new prompt is sent, display user prompt, append to message history, and display model response in stream.
     if prompt := st.chat_input('Your message here...'):
 
+        # Display user prompt, and append to message history.
         with st.chat_message('user', avatar=user_avatar):
             st.markdown(prompt)
 
-        st.session_state.messages.append(
-            dict(
-                role='user',
-                content=prompt,
-                avatar=user_avatar
-            )
-        )
+        append_message('user', prompt)
 
-        response = st.session_state.chat.send_message(
-            prompt,
-            stream=True,
-        )
+        # Feed model entire history up to latest prompt, generate response with temperature setting from user input.
+        response = st.session_state.model.generate_content(
+            contents=st.session_state.messages,
+            generation_config = genai.GenerationConfig(temperature=d_creativity[ai_temp]))
 
-        with st.chat_message(
-            name='ai',
-            avatar=ai_avatar,
-        ):
+        # Display model response in stream.
+        with st.chat_message('model', avatar=ai_avatar):
             message_placeholder = st.empty()
             full_response = ''
-            assistant_response = response
-
             for chunk in response:
-
                 for ch in chunk.text.split(' '):
                     full_response += ch + ' '
                     time.sleep(0.05)
-
                     message_placeholder.write(full_response + '▌')
-
             message_placeholder.write(full_response)
 
-
-        st.session_state.messages.append(
-            dict(
-                role='ai',
-                content=st.session_state.chat.history[-1].parts[0].text,
-                avatar=ai_avatar,
-            )
-        )
-        st.session_state.gemini_history = st.session_state.chat.history
-
-        joblib.dump(
-            st.session_state.messages,
-            f'data/{st.session_state.chat_id}-st_messages',
-        )
-        joblib.dump(
-            st.session_state.gemini_history,
-            f'data/{st.session_state.chat_id}-gemini_messages',
-        )
+        # Append model response to history.
+        append_message('model', response.text)
