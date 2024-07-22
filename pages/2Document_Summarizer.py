@@ -5,7 +5,7 @@ import google.generativeai as genai
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
 
 # User input to determine temperature setting of summarization model
-d_creativity = {'Very creative': 1, 'Moderately creative': .5, 'Not creative at all': 0}
+d_creativity = {'Very creative': 2, 'Moderately creative': 1, 'Not creative at all': 0}
 
 # Prompt template for summarization.
 summary_prompt = '''The following is a document.

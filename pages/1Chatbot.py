@@ -52,7 +52,7 @@ ai_temp = col2.selectbox('How creative would you like your AI to be?',
                                   This selection dictates how predicatable (not creative) or random (very creative)
                                   the response(s) from your AI will be.
                                   ''')
-d_creativity = {'Very creative': 0.9, 'Moderately creative': .5, 'Not creative at all': 0.1}
+d_creativity = {'Very creative': 2, 'Moderately creative': 1, 'Not creative at all': 0}
 
 d_avatar = {'model': ai_avatar, 'user': user_avatar}
 
