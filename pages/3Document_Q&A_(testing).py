@@ -7,7 +7,7 @@ import pandas as pd
 import time
 import numpy as np
 
-st.title("Document Q&A")
+st.title('Document Q&A')
 
 def click_button(button):
   st.session_state[button] = True
@@ -18,13 +18,13 @@ def update_question(question):
 def GetEmbedding(text):
   return genai.embed_content(model='models/text-embedding-004',
                              content=text,
-                             task_type="retrieval_document")["embedding"]
+                             task_type='retrieval_document')['embedding']
 
 def FindBestResponse(query, dataframe):
   query_embedding = genai.embed_content(model='models/text-embedding-004',
                                         content=query,
-                                        task_type="retrieval_query")
-  dot_products = np.dot(np.stack(dataframe['embedding']), query_embedding["embedding"])
+                                        task_type='retrieval_query')
+  dot_products = np.dot(np.stack(dataframe['embedding']), query_embedding['embedding'])
   idx = np.argmax(dot_products)
   return dataframe.iloc[idx]['text']
 
@@ -42,17 +42,17 @@ st.write('''
             Upload your text via pdf or manual entry
             ''')
 
-document_type = st.selectbox("What type of document would you like to ask questions about?",
+document_type = st.selectbox('What type of document would you like to ask questions about?',
               ['', 'Manually input text', 'PDF'],
-              help="""You can either upload a PDF document, or manually copy & paste text for your Q&A""")
+              help='You can either upload a PDF document, or manually copy & paste text for your Q&A')
 
 if document_type != '':
   document = []
 
   if document_type == 'PDF':
-    uploaded_file = st.file_uploader('Choose your .pdf file', type="pdf")
+    uploaded_file = st.file_uploader('Choose your .pdf file', type='pdf')
     if uploaded_file:
-      st.success("Uploaded the file")
+      st.success('Uploaded the file')
       with pdfplumber.open(uploaded_file) as file:
         all_pages = file.pages
         for i in all_pages:
@@ -63,7 +63,7 @@ if document_type != '':
     if 'text_entered' not in st.session_state:
       st.session_state.text_entered = False
 
-    st.button("Upload", on_click=click_button, args=('text_entered', ))
+    st.button('Upload', on_click=click_button, args=('text_entered', ))
 
     if st.session_state.text_entered:
       with st.spinner('Wait for it...'):
@@ -79,7 +79,7 @@ if document_type != '':
     if 'embedded' not in st.session_state:
         st.session_state.embedded = False
 
-    st.button("Begin Q&A", on_click=click_button, args=('qa_choice',))
+    st.button('Begin Q&A', on_click=click_button, args=('qa_choice',))
 
     if st.session_state.qa_choice:
 
@@ -89,7 +89,7 @@ if document_type != '':
                 time.sleep(2)
 
             max_tokens = 50
-            tokenizer = Tokenizer.from_pretrained("bert-base-uncased")
+            tokenizer = Tokenizer.from_pretrained('bert-base-uncased')
             splitter = TextSplitter.from_huggingface_tokenizer(tokenizer, max_tokens)
             document_chunks = []
             st.write('...splitting document into chunks')

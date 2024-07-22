@@ -5,7 +5,7 @@ import streamlit as st
 import google.generativeai as genai
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
 
-st.title("AI Chatbot")
+st.title('AI Chatbot')
 
 # Saves prompt and response to message history for future model input and chat window display.
 def append_message(role, content):
@@ -48,10 +48,10 @@ ai_name = col1.text_input('What would you like your AI\'s name to be?', '')
 
 ai_temp = col2.selectbox('How creative would you like your AI to be?',
                                   ['', 'Very creative', 'Moderately creative', 'Not creative at all'],
-                                  help="""
+                                  help='''
                                   This selection dictates how predicatable (not creative) or random (very creative)
                                   the response(s) from your AI will be.
-                                  """)
+                                  ''')
 d_creativity = {'Very creative': 0.9, 'Moderately creative': .5, 'Not creative at all': 0.1}
 
 d_avatar = {'model': ai_avatar, 'user': user_avatar}

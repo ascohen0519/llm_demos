@@ -8,11 +8,11 @@ from google.generativeai.types import HarmCategory, HarmBlockThreshold
 d_creativity = {'Very creative': 1, 'Moderately creative': .5, 'Not creative at all': 0}
 
 # Prompt template for summarization.
-summary_prompt = """The following is a document.
+summary_prompt = '''The following is a document.
 DOCUMENT: %s
 INSTRUCTIONS: Please write your summary in %s format. %s.
 SUMMARY:
-"""
+'''
 
 def click_button(button):
   st.session_state[button] = True
@@ -56,7 +56,7 @@ def SummarizeDocument(document, creativity, bullets_or_summary, max_bullets, max
 
   return GiveResponse(prompt, temp)
 
-st.title("Document Summarizer")
+st.title('Document Summarizer')
 
 if 'can_run' not in st.session_state:
     st.session_state['can_run'] = False
@@ -73,17 +73,17 @@ st.write('''
             Upload your text via pdf or manual entry
             ''')
 
-document_type = st.selectbox("What type of document would you like to summarize?",
+document_type = st.selectbox('What type of document would you like to summarize?',
               ['', 'Manually input text', 'PDF'],
-              help="""You can either upload a PDF document, or manually copy & paste text to summarize""")
+              help='You can either upload a PDF document, or manually copy & paste text to summarize')
 
 if document_type != '':
   document = []
 
   if document_type == 'PDF':
-    uploaded_file = st.file_uploader('Choose your .pdf file', type="pdf")
+    uploaded_file = st.file_uploader('Choose your .pdf file', type='pdf')
     if uploaded_file:
-      st.success("Uploaded the file")
+      st.success('Uploaded the file')
       with pdfplumber.open(uploaded_file) as file:
         all_pages = file.pages
         for i in all_pages:
@@ -94,7 +94,7 @@ if document_type != '':
     if 'text_entered' not in st.session_state:
       st.session_state.text_entered = False
 
-    st.button("Upload", on_click=click_button, args=('text_entered', ))
+    st.button('Upload', on_click=click_button, args=('text_entered', ))
 
     if st.session_state.text_entered:
       with st.spinner('Wait for it...'):
@@ -110,7 +110,7 @@ if document_type != '':
                 Decide the format, length and creativity level for your summary. 
                 ''')
 
-    bullets_or_summary = st.selectbox("What format would you like the summary in?",
+    bullets_or_summary = st.selectbox('What format would you like the summary in?',
                                       ['', 'Bullets', 'Paragraph', 'Bullets & Paragraph'])
 
     if 'summarize' not in st.session_state:
@@ -121,11 +121,11 @@ if document_type != '':
       max_bullets, max_length = 0, 0
 
       if 'Bullets' in bullets_or_summary:
-        max_bullets = st.select_slider("How many bullets for the summary?",
+        max_bullets = st.select_slider('How many bullets for the summary?',
                                        options=[''] + list(range(2, 11)))
 
       if 'Paragraph' in bullets_or_summary:
-        max_length = st.select_slider("How many characters for the summary?",
+        max_length = st.select_slider('How many characters for the summary?',
                                       options=[''] + list(range(50, 2001, 50)))
 
       if (
@@ -133,13 +133,13 @@ if document_type != '':
               (bullets_or_summary == 'Paragraph' and max_length != '') or
               (bullets_or_summary == 'Bullets & Paragraph' and max_bullets != '' and max_length != '')):
 
-        creativity = st.selectbox("How creative would you like the summary to be?",
+        creativity = st.selectbox('How creative would you like the summary to be?',
                                   ['', 'Very creative', 'Moderately creative', 'Not creative at all'])
 
         if creativity != '':
-          st.write("### Generate Summary")
+          st.write('### Generate Summary')
           st.markdown('Click Summarize to Continue...')
-          st.button("Summarize", on_click=click_button, args=('summarize',))
+          st.button('Summarize', on_click=click_button, args=('summarize',))
 
           if st.session_state.summarize:
             with st.spinner('Wait for it...'):
@@ -148,6 +148,5 @@ if document_type != '':
             try:
               st.markdown(SummarizeDocument(document, creativity, bullets_or_summary, max_bullets, max_length))
               st.session_state.summarize = False
-              st.write('\nThank you for trying this demo. Have a nice day!')
             except:
               st.write('Not a valid document type, please try again')
