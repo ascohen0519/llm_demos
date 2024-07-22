@@ -59,6 +59,8 @@ d_avatar = {'model': ai_avatar, 'user': user_avatar}
 # If all choices selected, initiate model and open chat window.
 if ai_avatar != '' and user_avatar != '' and ai_name != '' and ai_temp != '':
 
+    sys_instruct = 'You are a general purpose chatbot. Your name is %s'%ai_name
+
     st.write('### Chat with AI✨ ')
 
     # If first run, instantiate model and create empty list to append future prompts for ongoing context.
@@ -72,7 +74,7 @@ if ai_avatar != '' and user_avatar != '' and ai_name != '' and ai_temp != '':
         # Configure and instantiate model as general purpose chatbot, with user input temperature setting.
         genai.configure(api_key=st.session_state['gemini_api_key'])
         st.session_state.model = genai.GenerativeModel('gemini-1.5-flash',
-                                                       system_instruction='You are a general purpose chatbot.')
+                                                       system_instruction=sys_instruct)
 
         # Display welcome message
         intro = 'Hello, my name is %s, how may I help you today?' % ai_name
