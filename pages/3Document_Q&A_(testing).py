@@ -36,7 +36,6 @@ if not st.session_state['can_run']:
   st.stop()
 
 genai.configure(api_key=st.session_state['gemini_api_key'])
-model = genai.GenerativeModel('gemini-1.5-flash', system_instruction='You are an assisstant to help answer questions about a document.')
 
 st.write('''
             ### Upload Text
@@ -45,7 +44,7 @@ st.write('''
 
 document_type = st.selectbox("What type of document would you like to ask questions about?",
               ['', 'Manually input text', 'PDF'],
-              help="""You can either upload a PDF document, or manually copy & paste text to summarize""")
+              help="""You can either upload a PDF document, or manually copy & paste text for your Q&A""")
 
 if document_type != '':
   document = []
@@ -111,7 +110,10 @@ if document_type != '':
 
         st.write('ready!')
 
-        question = st.text_input('Ask me anything!', on_change=update_question, args=('question',))
+        question = st.text_input(
+            'Ask me a question about the contents of your document!',
+            on_change=update_question,
+            args=('question',))
 
         if st.session_state.question != '':
             with st.spinner('Wait for it...'):

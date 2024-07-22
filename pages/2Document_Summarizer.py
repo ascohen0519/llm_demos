@@ -2,6 +2,7 @@ import streamlit as st
 import pdfplumber
 import time
 import google.generativeai as genai
+from google.generativeai.types import HarmCategory, HarmBlockThreshold
 
 # User input to determine temperature setting of summarization model
 d_creativity = {'Very creative': 1, 'Moderately creative': .5, 'Not creative at all': 0}
@@ -20,7 +21,14 @@ def ReturnTemperature(creativity):
   return d_creativity[creativity]
 
 def GiveResponse(prompt, temp):
-  return model.generate_content(contents=prompt, generation_config=genai.GenerationConfig(temperature=temp)).text
+  return model.generate_content(
+    contents=prompt,
+    generation_config=genai.GenerationConfig(temperature=temp),
+    safety_settings={
+      HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
+      HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE
+    }
+  ).text
 
 def SummarizeDocument(document, creativity, bullets_or_summary, max_bullets, max_length):
 
@@ -126,11 +134,7 @@ if document_type != '':
               (bullets_or_summary == 'Bullets & Paragraph' and max_bullets != '' and max_length != '')):
 
         creativity = st.selectbox("How creative would you like the summary to be?",
-                                  ['', 'Very creative', 'Moderately creative', 'Not creative at all'],
-                                  help="""
-                                  This selection dictates how predicatable (not creative) or random (very creative)
-                                  the response from your AI can be
-                                  """)
+                                  ['', 'Very creative', 'Moderately creative', 'Not creative at all'])
 
         if creativity != '':
           st.write("### Generate Summary")

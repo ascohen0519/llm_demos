@@ -3,12 +3,27 @@ import os
 import joblib
 import streamlit as st
 import google.generativeai as genai
+from google.generativeai.types import HarmCategory, HarmBlockThreshold
 
 st.title("AI Chatbot")
 
 # Saves prompt and response to message history for future model input and chat window display.
 def append_message(role, content):
     st.session_state.messages.append({'role': role, 'parts': [content]})
+
+# Returns model response from message history including most recent prompt, and temperature setting.
+def GiveResponse(message_history, temp):
+  return st.session_state.model.generate_content(
+      contents=message_history,
+      generation_config=genai.GenerationConfig(temperature=temp),
+      safety_settings={
+          HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
+          HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE
+      }
+  )
+
+def ReturnTemperature(creativity):
+  return d_creativity[creativity]
 
 # If not valid API key entered, direct user to initial Demo Overview page.
 if 'can_run' not in st.session_state:
@@ -35,7 +50,7 @@ ai_temp = col2.selectbox('How creative would you like your AI to be?',
                                   ['', 'Very creative', 'Moderately creative', 'Not creative at all'],
                                   help="""
                                   This selection dictates how predicatable (not creative) or random (very creative)
-                                  the response from your AI can be
+                                  the response(s) from your AI will be.
                                   """)
 d_creativity = {'Very creative': 0.9, 'Moderately creative': .5, 'Not creative at all': 0.1}
 
@@ -79,9 +94,7 @@ if ai_avatar != '' and user_avatar != '' and ai_name != '' and ai_temp != '':
         append_message('user', prompt)
 
         # Feed model entire history up to latest prompt, generate response with temperature setting from user input.
-        response = st.session_state.model.generate_content(
-            contents=st.session_state.messages,
-            generation_config = genai.GenerationConfig(temperature=d_creativity[ai_temp]))
+        response = GiveResponse(st.session_state.messages, d_creativity[ai_temp])
 
         # Display model response in stream.
         with st.chat_message('model', avatar=ai_avatar):
