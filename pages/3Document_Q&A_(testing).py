@@ -101,7 +101,7 @@ if document_type != '':
             if not 'df' in st.session_state:
                 st.session_state['df'] = pd.DataFrame()
             st.session_state.df = pd.DataFrame(document_chunks, columns=['text'])
-            st.write('...getting text embeddings (this may take a few minutes)')
+            st.write('...creating text embeddings (this may take a few minutes)')
             st.session_state.df['embedding'] = st.session_state.df.apply(lambda x: GetEmbedding(x.text), axis=1)
             st.session_state.embedded = True
 
