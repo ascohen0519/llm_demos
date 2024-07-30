@@ -120,6 +120,7 @@ document_type = st.selectbox('What type of document would you like to summarize?
 
 if document_type != '':
     document = []
+    text_to_summarize = ''
 
     # Convert PDF into single string of text. If PDF is multiple pages, concatenate all pages via '. ' first.
     if document_type == 'PDF':
@@ -130,7 +131,7 @@ if document_type != '':
                 all_pages = file.pages
                 for i in all_pages:
                     document.append(i.extract_text())
-        text_to_summarize = '. '.join(document)
+        text_to_summarize += '. '.join(document)
     else:
         out = st.text_area('Enter your text, then click Upload', '', height=200)
 
@@ -142,8 +143,7 @@ if document_type != '':
         if st.session_state.text_entered:
             with st.spinner('Wait for it...'):
                 time.sleep(2)
-            document.append(out)
-            text_to_summarize = '. '.join(document)
+            text_to_summarize += out
 
     if len(text_to_summarize) > 0:
         st.write('The length of your document is %s characters.' % len(text_to_summarize))
