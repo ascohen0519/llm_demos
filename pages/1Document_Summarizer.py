@@ -136,7 +136,7 @@ if document_type != '':
             text_to_summarize += out
 
     if len(text_to_summarize) > 0:
-        st.write('The length of your document is %s characters.' % len(text_to_summarize))
+        st.write('The length of your document is %s characters.' % '{:,}'.format(len(text_to_summarize)))
 
         # Ensures text length within gemini 1.5 flash max context window length
         # https://ai.google.dev/gemini-api/docs/long-context
@@ -166,7 +166,7 @@ if document_type != '':
 
             if 'Paragraph' in bullets_or_summary:
                 paragraph_length = st.select_slider('How many words for the paragraph?',
-                                                    options=[''] + list(range(50, 2001, 50)))
+                                                    options=[''] + list(range(10, 501, 50)))
 
             if (
                     (bullets_or_summary == 'Bullets' and max_bullets != '') or
