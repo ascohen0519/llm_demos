@@ -38,7 +38,7 @@ except:
 
 '''
 Upload PDFs or manually copy and paste a body of text to be summarized. You can set parameters
-for the summary to be generated, including format, length, and advanced parameters including token sampling method
+for the summary to be generated, including format and length, and advanced parameters including token sampling method
 and temperature.
 '''
 
