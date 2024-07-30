@@ -63,7 +63,7 @@ user_avatar = col2.selectbox('What would you like your avatar to be?',
 ai_name = col1.text_input('What would you like your AI\'s name to be?', '')
 
 ai_creativity = col2.selectbox('How creative would you like your AI to be?',
-                               ['', 'Very creative', 'Moderately creative', 'Not creative at all'],
+                               ['', 'Not creative at all', 'Moderately creative', 'Very creative'],
                                help='''
                                       This decides how your model chooses the next word in it's response to you - by
                                       altering the number of tokens in consideration (top-p) and the shape of the
@@ -75,8 +75,8 @@ d_avatar = {'model': ai_avatar, 'user': user_avatar}
 # If all choices selected, initiate model and open chat window.
 if ai_avatar != '' and user_avatar != '' and ai_name != '' and ai_creativity != '':
 
-    d_creativity_temp = {'Very creative': 2, 'Moderately creative': 1, 'Not creative at all': 0}
-    d_creativity_topp = {'Very creative': 1, 'Moderately creative': .5, 'Not creative at all': 0}
+    d_creativity_temp = {'Not creative at all': 0, 'Moderately creative': 1, 'Very creative': 2}
+    d_creativity_topp = {'Not creative at all': 0, 'Moderately creative': .5, 'Very creative': 1}
     gen_config = {'temperature': d_creativity_temp[ai_creativity], 'top_p': d_creativity_topp[ai_creativity]}
 
     st.write('### Chat with AI✨ ')
