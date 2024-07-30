@@ -5,7 +5,7 @@ import google.generativeai as genai
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
 import numpy as np
 
-# Prompt template for summarization. Leverages "stuff" approach, chunking -> map-reduce not yet supported.
+# Prompt template for summarization. Leverages 'stuff' approach, chunking -> map-reduce not yet supported.
 summary_prompt = '''The following is a document.
 DOCUMENT: %s
 INSTRUCTIONS: Please write your summary in %s format. %s.
@@ -187,7 +187,7 @@ if document_type != '':
                 gen_config = {'max_output_tokens': default_max_tokens}
 
                 # Optional input for advanced parameters (max tokens, token sampling, temperature).
-                with st.expander("Advanced Parameters (optional)"):
+                with st.expander('Advanced Parameters (optional)'):
 
                     # Option to increase max tokens.
                     final_max_tokens = st.select_slider('What is the max number of tokens for the entire summary?',
@@ -213,14 +213,15 @@ if document_type != '':
 
                             top_p = st.select_slider('What cumulative probability cutoff would you like to use?',
                                                      value=.95,
-                                                     options=[np.round(i * .01, 2) for i in list(range(1, 101, 1))])
+                                                     options=[
+                                                         np.round(i * .01, 2) for i in list(range(1, 101, 1))])
 
                             gen_config['top_p'] = top_p
 
                         else:
                             gen_config['top_k'] = 40
 
-                            top_k = st.select_slider('How many top tokens to chose from?',
+                            top_k = st.select_slider('How many top tokens to choose from?',
                                                      value=40,
                                                      options=list(range(2, 41, 1)))
 
@@ -232,7 +233,7 @@ if document_type != '':
                                                       value=1,
                                                       options=[i * .01 for i in list(range(0, 225, 25))])
 
-                        gen_config["temperature"] = final_temp
+                        gen_config['temperature'] = final_temp
 
                     # Dynamically display generation config. Display help link to educate user on parameter definitions.
                     st.write('current generation config:')
