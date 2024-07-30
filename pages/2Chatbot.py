@@ -7,57 +7,76 @@ from google.generativeai.types import HarmCategory, HarmBlockThreshold
 
 st.title('AI Chatbot')
 
-# Saves prompt and response to message history for future model input and chat window display.
+
 def append_message(role, content):
+    """Appends message to message history to pass into model during each new prompt in session.
+
+    Args:
+        role: Model or user.
+        content: Content in message (completion from model or prompt from user).
+    """
     st.session_state.messages.append({'role': role, 'parts': [content]})
 
-# Returns model response from message history including most recent prompt, and temperature setting.
-def GiveResponse(message_history, temp):
-  return st.session_state.model.generate_content(
-      contents=message_history,
-      generation_config=genai.GenerationConfig(temperature=temp, top_p = .5),
-      safety_settings={
-          HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
-          HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE
-      }
-  )
 
-def ReturnTemperature(creativity):
-  return d_creativity[creativity]
+# Returns model response from message history including most recent prompt, and temperature setting.
+def GiveResponse(message_history, gen_config):
+    """
+
+    Args:
+        message_history: Session state message history, containing all prior messages and latest user prompt.
+        gen_config: Dictionary of top-p and temperature setting based on user input creativity level.
+
+    Returns:
+        Model response, includes .text for displaying the prompt completion in UI.
+    """
+    return st.session_state.model.generate_content(
+        contents=message_history,
+        generation_config=genai.GenerationConfig(**gen_config),
+        safety_settings={
+            HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
+            HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE
+        }
+    )
+
 
 # If not valid API key entered, direct user to initial Demo Overview page.
 if 'can_run' not in st.session_state:
     st.session_state['can_run'] = False
 
 if not st.session_state['can_run']:
-  st.markdown('Please input a valid API key on the Demo Overview page')
-  st.stop()
+    st.markdown('Please input a valid API key on the Demo Overview page')
+    st.stop()
 
 # User selections.
 col1, col2 = st.columns(2)
 
 ai_avatar = col1.selectbox('What would you like your AI\'s avatar to be?',
-                              ['', '🔆','🌟','✨','🌈','🚀','🎉','🏆','🎱'],
-                              help='Please select a character to use for your models responses')
+                           ['', '🔆', '🌟', '✨', '🌈', '🚀', '🎉', '🏆', '🎱'])
 
 user_avatar = col2.selectbox('What would you like your avatar to be?',
-                                ['', '🐀','🐁','🐋','🐉','🐊','🐉','🐈','🐇','🐌','🐍','🐎','🐑','🐒','🐓','🐔','🐕','🐟','🐞','🐝','🐜','🐞','🐝','🐜','🐛','🐚','🐙','🐘','🐗','🐖','🐠','🐡','🐢','🐣','🐤','🐥','🐦','🐧','🐨','🐩','🐳','🐲','🐱','🐰','🐯','🐮','🐭','🐬','🐫','🐪','🐴','🐵','🐶','🐷','🐸','🐹','🐺','🐻','🐼'],
-                                help='Please select a character to use for your responses')
+                             ['', '🐀', '🐁', '🐋', '🐉', '🐊', '🐉', '🐈', '🐇', '🐌', '🐍', '🐎', '🐑', '🐒', '🐓', '🐔', '🐕', '🐟',
+                              '🐞', '🐝', '🐜', '🐞', '🐝', '🐜', '🐛', '🐚', '🐙', '🐘', '🐗', '🐖', '🐠', '🐡', '🐢', '🐣', '🐤', '🐥',
+                              '🐦', '🐧', '🐨', '🐩', '🐳', '🐲', '🐱', '🐰', '🐯', '🐮', '🐭', '🐬', '🐫', '🐪', '🐴', '🐵', '🐶', '🐷',
+                              '🐸', '🐹', '🐺', '🐻', '🐼'])
 
 ai_name = col1.text_input('What would you like your AI\'s name to be?', '')
 
-ai_temp = col2.selectbox('How creative would you like your AI to be?',
-                                  ['', 'Very creative', 'Moderately creative', 'Not creative at all'],
-                                  help='''
-                                  This selection dictates how predicatable (not creative) or random (very creative)
-                                  the response(s) from your AI will be.
-                                  ''')
-d_creativity = {'Very creative': 2, 'Moderately creative': 1, 'Not creative at all': 0}
+ai_creativity = col2.selectbox('How creative would you like your AI to be?',
+                               ['', 'Very creative', 'Moderately creative', 'Not creative at all'],
+                               help='''
+                                      This decides how your model chooses the next word in it's response to you - by
+                                      altering the number of tokens in consideration (top-p) and the shape of the
+                                      probability distribution (temperature) for token selection.
+                                      ''')
 
 d_avatar = {'model': ai_avatar, 'user': user_avatar}
 
 # If all choices selected, initiate model and open chat window.
-if ai_avatar != '' and user_avatar != '' and ai_name != '' and ai_temp != '':
+if ai_avatar != '' and user_avatar != '' and ai_name != '' and ai_creativity != '':
+
+    d_creativity_temp = {'Very creative': 2, 'Moderately creative': 1, 'Not creative at all': 0}
+    d_creativity_topp = {'Very creative': 1, 'Moderately creative': .5, 'Not creative at all': 0}
+    gen_config = {'temperature': d_creativity_temp[ai_creativity], 'top_p': d_creativity_topp[ai_creativity]}
 
     st.write('### Chat with AI✨ ')
 
@@ -66,21 +85,21 @@ if ai_avatar != '' and user_avatar != '' and ai_name != '' and ai_temp != '':
         st.session_state.ran = False
 
     if not st.session_state.ran:
-        # Create message history
+        # Create message history.
         st.session_state.messages = []
 
         # Configure and instantiate model as general purpose chatbot, with user input temperature setting.
         genai.configure(api_key=st.session_state['gemini_api_key'])
         st.session_state.model = genai.GenerativeModel(
             'gemini-1.5-flash',
-            system_instruction='You are a general purpose chatbot. Your name is %s'%ai_name)
+            system_instruction='You are a general purpose chatbot. Your name is %s' % ai_name)
 
         # Display welcome message
         intro = 'Hello, my name is %s, how may I help you today?' % ai_name
         append_message('model', intro)
         st.session_state.ran = True
 
-    # For all messages in history, re-write.
+    # For all messages in history, re-write in chat ui.
     for message in st.session_state.messages:
         with st.chat_message(name=message['role'], avatar=d_avatar[message['role']]):
             st.markdown(message['parts'][0])
@@ -92,10 +111,11 @@ if ai_avatar != '' and user_avatar != '' and ai_name != '' and ai_temp != '':
         with st.chat_message('user', avatar=user_avatar):
             st.markdown(prompt)
 
+        # Append latest user prompt to history.
         append_message('user', prompt)
 
-        # Feed model entire history up to latest prompt, generate response with temperature setting from user input.
-        response = GiveResponse(st.session_state.messages, d_creativity[ai_temp])
+        # Feed model entire history up to latest prompt, gen_config set based on user input creativity level.
+        response = GiveResponse(st.session_state.messages, gen_config)
 
         # Display model response in stream.
         with st.chat_message('model', avatar=ai_avatar):
