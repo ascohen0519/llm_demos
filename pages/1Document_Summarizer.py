@@ -5,9 +5,6 @@ import google.generativeai as genai
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
 import numpy as np
 
-# Starting point for temperature setting based on user input desired level of summary creativity.
-d_creativity = {'Very creative': 2, 'Moderately creative': 1, 'Not creative at all': 0}
-
 # Prompt template for summarization. Leverages "stuff" approach, chunking -> map-reduce not yet supported.
 summary_prompt = '''The following is a document.
 DOCUMENT: %s
@@ -15,16 +12,6 @@ INSTRUCTIONS: Please write your summary in %s format. %s.
 SUMMARY:
 '''
 
-def ReturnTemperature(creativity):
-    """Returns integer for temperature starting point based on string input from user selection.
-
-    Args:
-        creativity: User input from selection dropdown on desired summary creativity level.
-
-    Returns:
-        Dictionary value associated with creativity string (see d_creativity).
-    """
-    return d_creativity[creativity]
 
 def ClickButton(button):
     """Sets st.session_state variable to True after user clicks button.
@@ -33,6 +20,7 @@ def ClickButton(button):
         button: st.session_state variable.
     """
     st.session_state[button] = True
+
 
 def ConstructPrompt(text_to_summarize, bullets_or_summary, max_bullets, paragraph_length):
     """Constructs summarization prompt from prompt template.
@@ -66,6 +54,7 @@ def ConstructPrompt(text_to_summarize, bullets_or_summary, max_bullets, paragrap
     prompt = summary_prompt % (text_to_summarize, summary_format, length_limit)
     return prompt
 
+
 def ProduceSummary(prompt, gen_config):
     """ Produces summary based on text to summarize and user selected criteria for summarization.
 
@@ -85,6 +74,7 @@ def ProduceSummary(prompt, gen_config):
             HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE
         }
     ).text
+
 
 st.title('Document Summarizer')
 
@@ -208,46 +198,32 @@ if document_type != '':
                     else:
 
                         if token_choice_algo == 'Top-p':
-                            gen_config['top_p'] = .5
-                            gen_config['temperature'] = 1
+                            gen_config['top_p'] = .95
 
                             top_p = st.select_slider('What cumulative probability cutoff would you like to use?',
-                                                     value=.5,
-                                                     options=[np.round(i * .01, 2) for i in list(range(0, 100, 5))])
+                                                     value=.95,
+                                                     options=[np.round(i * .01, 2) for i in list(range(1, 101, 5))])
 
                             gen_config['top_p'] = top_p
 
                         else:
-                            gen_config['top_k'] = 3
-                            gen_config['temperature'] = 1
+                            gen_config['top_k'] = 40
 
                             top_k = st.select_slider('How many top tokens to chose from?',
-                                                     value=3,
-                                                     options=list(range(2, 101, 1)))
+                                                     value=40,
+                                                     options=list(range(2, 41, 1)))
 
                             gen_config['top_k'] = top_k
 
-                        # Set default temperature based on user input creativity setting.
-                        # Option to override and modify exact temperature setting.
-                        creativity = st.selectbox('How creative would you like the summary to be?',
-                                                  ['', 'Very creative', 'Moderately creative',
-                                                   'Not creative at all'])
+                        gen_config['temperature'] = 1
 
+                        final_temp = st.select_slider('Exact Temperature (will override creativity choice)',
+                                                      value=1,
+                                                      options=[i * .01 for i in list(range(0, 225, 25))])
 
+                        gen_config["temperature"] = final_temp
 
-                        if creativity != '':
-                            current_temp = ReturnTemperature(creativity)
-
-                            final_temp = st.select_slider('Exact Temperature (will overide creativity choice)',
-                                                          value=current_temp,
-                                                          options=[i * .01 for i in list(range(0, 225, 25))])
-
-                            gen_config["temperature"] = final_temp
-
-
-
-                    # Dynamically display generation config.
-                    # Display help link to educate user on configuration meaning.
+                    # Dynamically display generation config. Display help link to educate user on parameter definitions.
                     st.write('current generation config:')
                     st.write(gen_config)
                     st.markdown(
