@@ -186,7 +186,7 @@ if document_type != '':
                 current_max_tokens = round(int((max_bullets * 100) + (paragraph_length * 1.2)), -2)
 
                 # Default gen config includes max output tokens, calculated automatically based on prior selection.
-                gen_config = {"max_output_tokens": current_max_tokens}
+                gen_config = {'max_output_tokens': current_max_tokens}
 
                 # Optional input for advanced parameters (max tokens, token sampling, temperature).
                 with st.expander("Advanced Parameters (optional)"):
@@ -197,7 +197,7 @@ if document_type != '':
                                                         options=[''] + list(
                                                             range(current_max_tokens, current_max_tokens * 2, 50)))
 
-                    gen_config = {"max_output_tokens": final_max_tokens}
+                    gen_config = {'max_output_tokens': final_max_tokens}
 
                     # Option for alternate token sampling method.
                     token_choice_algo = st.selectbox('Which method would you like to use for token selection?',
@@ -223,9 +223,9 @@ if document_type != '':
 
                             top_k = st.select_slider('How many top tokens to chose from?',
                                                      value=3,
-                                                     options=list(range(0, 101, 5)))
+                                                     options=list(range(2, 101, 1)))
 
-                            gen_config["top_k"] = top_k
+                            gen_config['top_k'] = top_k
 
                         # Set default temperature based on user input creativity setting.
                         # Option to override and modify exact temperature setting.
