@@ -31,12 +31,12 @@ def ConstructPrompt(text_to_summarize, bullets_or_summary, max_bullets, paragrap
         text_to_summarize: Single string of text provided by user via PDF or manual entry.
         bullets_or_summary: User selection on summary format.
         max_bullets: If user selects format with bullets, # of bullets selected.
-        paragraph_length: If user selects format with paragraph, approximate character lengh selected.
+        paragraph_length: If user selects format with paragraph, approximate word length selected.
 
     Returns:
         Final prompt to pass into model for summarization.
     """
-    paragraph_limit = 'the paragraph should be approximately %s characters' % paragraph_length
+    paragraph_limit = 'the paragraph should be approximately %s words' % paragraph_length
     bullets_limit = 'please include %s bullets' % max_bullets
 
     if bullets_or_summary == 'Bullets':
@@ -165,7 +165,7 @@ if document_type != '':
                                                options=[''] + list(range(2, 11)))
 
             if 'Paragraph' in bullets_or_summary:
-                paragraph_length = st.select_slider('How many characters for the paragraph?',
+                paragraph_length = st.select_slider('How many words for the paragraph?',
                                                     options=[''] + list(range(50, 2001, 50)))
 
             if (
@@ -173,19 +173,26 @@ if document_type != '':
                     (bullets_or_summary == 'Paragraph' and paragraph_length != '') or
                     (bullets_or_summary == 'Bullets & Paragraph' and max_bullets != '' and paragraph_length != '')):
 
-                current_max_tokens = round(int((max_bullets * 100) + (paragraph_length * 1.2)), -2)
+                # If bullet output in format selection, assumes 100 max tokens per bullet.
+                # If paragraph output in format selection, assumes 100 tokens per 75 words, plus a 20% ceiling buffer.
+                default_bullet_tokens = max_bullets * 100
+                default_paragraph_tokens = paragraph_length * (100 / 75) * 1.2
+                default_max_tokens = round(int(default_bullet_tokens + default_paragraph_tokens), -2)
 
                 # Default gen config includes max output tokens, calculated automatically based on prior selection.
-                gen_config = {'max_output_tokens': current_max_tokens}
+                gen_config = {'max_output_tokens': default_max_tokens}
 
                 # Optional input for advanced parameters (max tokens, token sampling, temperature).
                 with st.expander("Advanced Parameters (optional)"):
 
                     # Option to increase max tokens.
                     final_max_tokens = st.select_slider('What is the max characters for the entire summary?',
-                                                        value=current_max_tokens,
+                                                        value=default_max_tokens,
                                                         options=[''] + list(
-                                                            range(current_max_tokens, current_max_tokens * 2, 50)))
+                                                            range(
+                                                                default_max_tokens,
+                                                                (default_max_tokens * 2) + 1,
+                                                                50)))
 
                     gen_config = {'max_output_tokens': final_max_tokens}
 
