@@ -212,7 +212,7 @@ if document_type != '':
                             gen_config['temperature'] = 1
 
                             top_p = st.select_slider('What cumulative probability cutoff would you like to use?',
-                                                     value=.3,
+                                                     value=.5,
                                                      options=[np.round(i * .01, 2) for i in list(range(0, 100, 5))])
 
                         else:
@@ -220,7 +220,7 @@ if document_type != '':
                             gen_config['temperature'] = 1
 
                             top_k = st.select_slider('How many top tokens to chose from?',
-                                                     value=5,
+                                                     value=3,
                                                      options=list(range(0, 101, 5)))
 
                             gen_config["top_k"] = top_k
