@@ -209,7 +209,7 @@ if document_type != '':
 
                             top_p = st.select_slider('What cumulative probability cutoff would you like to use?',
                                                      value=.95,
-                                                     options=[np.round(i * .01, 2) for i in list(range(1, 101, 5))])
+                                                     options=[np.round(i * .01, 2) for i in list(range(1, 101, 1))])
 
                             gen_config['top_p'] = top_p
 
