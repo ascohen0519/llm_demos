@@ -170,7 +170,7 @@ if document_type != '':
 
             if 'Paragraph' in bullets_or_summary:
                 paragraph_length = st.select_slider('How many words for the paragraph?',
-                                                    options=[''] + list(range(10, 1001, 10)))
+                                                    options=[''] + list(range(10, 1001, 50)))
 
             if (
                     (bullets_or_summary == 'Bullets' and max_bullets != '') or
