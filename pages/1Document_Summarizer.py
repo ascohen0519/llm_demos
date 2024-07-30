@@ -208,7 +208,7 @@ if document_type != '':
                     else:
 
                         if token_choice_algo == 'Top-p':
-                            gen_config['top_p'] = .3
+                            gen_config['top_p'] = .5
                             gen_config['temperature'] = 1
 
                             top_p = st.select_slider('What cumulative probability cutoff would you like to use?',
@@ -216,7 +216,7 @@ if document_type != '':
                                                      options=[np.round(i * .01, 2) for i in list(range(0, 100, 5))])
 
                         else:
-                            gen_config['top_k'] = 5
+                            gen_config['top_k'] = 3
                             gen_config['temperature'] = 1
 
                             top_k = st.select_slider('How many top tokens to chose from?',
@@ -249,7 +249,7 @@ if document_type != '':
                     st.write('current generation config:')
                     st.write(gen_config)
                     st.markdown(
-                        "<span style='font-size: 12px;'>[learn more](https://ai.google.dev/gemini-api/docs/models/generative-models#model-parameters)</span>",
+                        "<span style='font-size: 12px;'>[learn more](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/prompts/adjust-parameter-values)</span>",
                         unsafe_allow_html=True)
 
                 # Prompt for user to generate summary with current parameters.
