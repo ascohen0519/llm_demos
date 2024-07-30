@@ -15,7 +15,7 @@ def append_message(role, content):
 def GiveResponse(message_history, temp):
   return st.session_state.model.generate_content(
       contents=message_history,
-      generation_config=genai.GenerationConfig(temperature=temp),
+      generation_config=genai.GenerationConfig(temperature=temp, top_p = .5),
       safety_settings={
           HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
           HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE
