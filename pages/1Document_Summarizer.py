@@ -150,8 +150,8 @@ if document_type != '':
         # Begin user input summarization parameters.
         st.write('''
                 ### Set Summarization Parameters
-                Decide the format and length for your summary.
-                Set optional advanced parameters including max tokens, token sampling methodology and temperature.  
+                Decide the format and length for your summary. Set optional advanced parameters including max tokens,
+                token sampling methodology and temperature. 
                 ''')
 
         bullets_or_summary = st.selectbox('What format would you like the summary in?',
@@ -170,7 +170,7 @@ if document_type != '':
 
             if 'Paragraph' in bullets_or_summary:
                 paragraph_length = st.select_slider('How many words for the paragraph?',
-                                                    options=[''] + list(range(10, 501, 10)))
+                                                    options=[''] + list(range(10, 1001, 10)))
 
             if (
                     (bullets_or_summary == 'Bullets' and max_bullets != '') or
