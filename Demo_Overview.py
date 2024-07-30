@@ -38,8 +38,8 @@ except:
 
 '''
 Upload PDFs or manually copy and paste a body of text to be summarized. You can set parameters
-for the summary to be generated, including format, length, and advanced parameters, including token sampling method
-and temperature
+for the summary to be generated, including format, length, and advanced parameters including token sampling method
+and temperature.
 '''
 
 '## Chatbot'
@@ -50,7 +50,7 @@ interact with you as with a normal conversation. Select your avatars and start c
 '''
 
 '## Document Q&A'
-'#### (testing in progress)'
+st.write('(testing in progress)')
 
 '''
 Upload PDFs or manually copy and paste a body of text. After a brief period, you'll be able to ask questions
