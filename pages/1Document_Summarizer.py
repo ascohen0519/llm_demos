@@ -166,11 +166,11 @@ if document_type != '':
 
             if 'Bullets' in bullets_or_summary:
                 max_bullets = st.select_slider('How many bullets for the bullet list?',
-                                               options=[''] + list(range(2, 11)))
+                                               options=[''] + list(range(2, 16)))
 
             if 'Paragraph' in bullets_or_summary:
                 paragraph_length = st.select_slider('How many words for the paragraph?',
-                                                    options=[''] + list(range(10, 1001, 50)))
+                                                    options=[''] + list(range(10, 1001, 10)))
 
             if (
                     (bullets_or_summary == 'Bullets' and max_bullets != '') or
