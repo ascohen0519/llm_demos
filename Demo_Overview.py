@@ -45,8 +45,8 @@ and temperature.
 '## Chatbot'
 
 '''
-Chat with AI about a topic of interest. The bot will remember your conversation from the start and can 
-interact with you as with a normal conversation. Select your avatars and creativity level to start chatting. 
+Chat with AI about a topic of interest. The model will remember your conversation history throughout the session. You 
+can customize your AI's name, avatar and desired creativity level. 
 '''
 
 '## Document Q&A'
