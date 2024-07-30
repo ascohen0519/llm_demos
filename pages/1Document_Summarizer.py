@@ -138,11 +138,12 @@ if document_type != '':
             text_to_summarize += out
 
     if len(text_to_summarize) > 0:
-        st.write('The length of your document is %s characters.' % '{:,}'.format(len(text_to_summarize)))
+        num_tokens = model.count_tokens(text_to_summarize).total_tokens
+        st.write('The length of your document is %s tokens.' % '{:,}'.format(num_tokens))
 
-        # Ensures text length within gemini 1.5 flash max context window length
+        # Ensures text length within gemini 1.5 flash max context window length.
         # https://ai.google.dev/gemini-api/docs/long-context
-        if len(text_to_summarize) > 1000000:
+        if num_tokens > 1000000:
             st.write('this document is too long, please upload another document.')
             st.stop()
 
