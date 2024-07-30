@@ -215,6 +215,8 @@ if document_type != '':
                                                      value=.5,
                                                      options=[np.round(i * .01, 2) for i in list(range(0, 100, 5))])
 
+                            gen_config['top_p'] = .5
+
                         else:
                             gen_config['top_k'] = 3
                             gen_config['temperature'] = 1
