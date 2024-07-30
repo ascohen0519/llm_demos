@@ -25,9 +25,9 @@ else:
     model = genai.GenerativeModel('gemini-1.5-flash')
 
 try:
-    st.markdown(model.generate_content('write: Valid API key, thank you.').text)
+    model.generate_content('hello')
+    st.write('Valid API key, thank you.')
     st.session_state['can_run'] = True
-    #time.sleep(2)
 except:
     ('This is not a valid API key, please try again')
     st.stop()
