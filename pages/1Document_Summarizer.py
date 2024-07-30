@@ -193,7 +193,7 @@ if document_type != '':
                                                         options=[''] + list(
                                                             range(
                                                                 default_max_tokens,
-                                                                (default_max_tokens * 2) + 1,
+                                                                (default_max_tokens * 1.2) + 1,
                                                                 50)))
 
                     gen_config = {'max_output_tokens': final_max_tokens}
