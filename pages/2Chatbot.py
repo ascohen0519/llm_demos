@@ -18,9 +18,8 @@ def append_message(role, content):
     st.session_state.messages.append({'role': role, 'parts': [content]})
 
 
-# Returns model response from message history including most recent prompt, and temperature setting.
 def GiveResponse(message_history, gen_config):
-    """
+    """Generates model response given message history including latest user prompt.
 
     Args:
         message_history: Session state message history, containing all prior messages and latest user prompt.
@@ -34,7 +33,9 @@ def GiveResponse(message_history, gen_config):
         generation_config=genai.GenerationConfig(**gen_config),
         safety_settings={
             HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
-            HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE
+            HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
+            HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
+            HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE
         }
     )
 
