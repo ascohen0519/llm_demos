@@ -226,7 +226,7 @@ if document_type != '':
 
                         gen_config['temperature'] = 1
 
-                        final_temp = st.select_slider('Exact Temperature (will override creativity choice)',
+                        final_temp = st.select_slider('Exact Temperature',
                                                       value=1,
                                                       options=[i * .01 for i in list(range(0, 225, 25))])
 
