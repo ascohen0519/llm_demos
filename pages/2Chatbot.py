@@ -7,7 +7,6 @@ from google.generativeai.types import HarmCategory, HarmBlockThreshold
 
 st.title('AI Chatbot')
 
-
 def append_message(role, content):
     """Appends message to message history to pass into model during each new prompt in session.
 
@@ -18,7 +17,7 @@ def append_message(role, content):
     st.session_state.messages.append({'role': role, 'parts': [content]})
 
 
-def GiveResponse(message_history, gen_config):
+def give_response(message_history, gen_config):
     """Generates model response given message history including latest user prompt.
 
     Args:
@@ -75,8 +74,8 @@ d_avatar = {'model': ai_avatar, 'user': user_avatar}
 # If all choices selected, initiate model and open chat window.
 if ai_avatar != '' and user_avatar != '' and ai_name != '' and ai_creativity != '':
 
-    d_creativity_temp = {'Not creative at all': 0, 'Moderately creative': 1, 'Very creative': 2}
-    d_creativity_topp = {'Not creative at all': 0, 'Moderately creative': .5, 'Very creative': 1}
+    d_creativity_temp = {'Not creative at all': 0, 'Moderately creative': .75, 'Very creative': 1.5}
+    d_creativity_topp = {'Not creative at all': 0, 'Moderately creative': .5, 'Very creative': .95}
     gen_config = {'temperature': d_creativity_temp[ai_creativity], 'top_p': d_creativity_topp[ai_creativity]}
 
     st.write('### Chat with AI✨ ')
@@ -116,7 +115,7 @@ if ai_avatar != '' and user_avatar != '' and ai_name != '' and ai_creativity != 
         append_message('user', prompt)
 
         # Feed model entire history up to latest prompt, gen_config set based on user input creativity level.
-        response = GiveResponse(st.session_state.messages, gen_config)
+        response = give_response(st.session_state.messages, gen_config)
 
         # Display model response in stream.
         with st.chat_message('model', avatar=ai_avatar):
