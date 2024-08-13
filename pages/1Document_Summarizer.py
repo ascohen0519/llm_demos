@@ -5,6 +5,8 @@ import google.generativeai as genai
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
 import numpy as np
 
+st.title('Document Summarizer')
+
 # Prompt template for summarization. Leverages 'stuff' approach, chunking -> map-reduce not yet supported.
 summary_prompt = '''The following is a document.
 DOCUMENT: %s
@@ -13,8 +15,8 @@ SUMMARY:
 '''
 
 
-def ClickButton(button):
-    """Sets st.session_state variable to True after user clicks button.
+def click_button(button):
+    """Sets session state button variable to True after user clicks button.
 
     Args:
         button: st.session_state variable.
@@ -22,7 +24,7 @@ def ClickButton(button):
     st.session_state[button] = True
 
 
-def ConstructPrompt(text_to_summarize, bullets_or_summary, max_bullets, paragraph_length):
+def construct_prompt(text_to_summarize, bullets_or_summary, max_bullets, paragraph_length):
     """Constructs summarization prompt from prompt template.
 
     This is based on user uploaded document/text and user selection of summary format and length of summary section(s).
@@ -55,7 +57,7 @@ def ConstructPrompt(text_to_summarize, bullets_or_summary, max_bullets, paragrap
     return prompt
 
 
-def ProduceSummary(prompt, gen_config):
+def produce_summary(prompt, gen_config):
     """ Produces summary based on text to summarize and user selected criteria for summarization.
 
     Args:
@@ -77,8 +79,6 @@ def ProduceSummary(prompt, gen_config):
         }
     ).text
 
-
-st.title('Document Summarizer')
 
 # Begin UI workflow for file/text input, summarization settings and displaying output.
 
@@ -130,7 +130,7 @@ if document_type != '':
         if 'text_entered' not in st.session_state:
             st.session_state.text_entered = False
 
-        st.button('Upload', on_click=ClickButton, args=('text_entered',))
+        st.button('Upload', on_click=click_button, args=('text_entered',))
 
         if st.session_state.text_entered:
             with st.spinner('Wait for it...'):
@@ -169,7 +169,7 @@ if document_type != '':
 
             if 'Paragraph' in bullets_or_summary:
                 paragraph_length = st.select_slider('How many words for the paragraph?',
-                                                    options=[''] + list(range(10, 1001, 10)))
+                                                    options=[''] + list(range(50, 1001, 50)))
 
             if (
                     (bullets_or_summary == 'Bullets' and max_bullets != '') or
@@ -179,14 +179,14 @@ if document_type != '':
                 # If bullet output in format selection, assumes 100 max tokens per bullet.
                 # If paragraph output in format selection, assumes 100 tokens per 75 words, plus a 20% ceiling buffer.
                 default_bullet_tokens = max_bullets * 100
-                default_paragraph_tokens = paragraph_length * (100 / 75) * 1.2
+                default_paragraph_tokens = paragraph_length * (100 / 75) * 1.1
                 default_max_tokens = round(int(default_bullet_tokens + default_paragraph_tokens), -2)
 
                 # Default gen config includes max output tokens, calculated automatically based on prior selection.
                 gen_config = {'max_output_tokens': default_max_tokens}
 
                 # Optional input for advanced parameters (max tokens, token sampling, temperature).
-                with st.expander('Advanced Parameters (optional)'):
+                with st.expander('Advanced Parameters (optional)', expanded=True):
 
                     # Option to increase max tokens.
                     final_max_tokens = st.select_slider('What is the max number of tokens for the entire summary?',
@@ -197,18 +197,19 @@ if document_type != '':
                                                                 int(default_max_tokens * 1.2) + 1,
                                                                 50)))
 
-                    gen_config = {'max_output_tokens': final_max_tokens}
+                    # Default to top-p token selection
+                    gen_config = {'max_output_tokens': final_max_tokens, 'top_p': .95, 'temperature': 1}
 
                     # Option for alternate token sampling method.
                     token_choice_algo = st.selectbox('Which method would you like to use for token selection?',
-                                                     ['Greedy', 'Top-p', 'Top-k'])
+                                                     ['Top-p', 'Top-k', 'Greedy'])
 
                     if token_choice_algo == 'Greedy':
-                        pass
+                        gen_config = {'max_output_tokens': final_max_tokens}
+
                     else:
 
                         if token_choice_algo == 'Top-p':
-                            gen_config['top_p'] = .95
 
                             top_p = st.select_slider('What cumulative probability cutoff would you like to use?',
                                                      value=.95,
@@ -228,7 +229,7 @@ if document_type != '':
 
                         gen_config['temperature'] = 1
 
-                        final_temp = st.select_slider('Exact Temperature',
+                        final_temp = st.select_slider('What temperature setting you would like to use?',
                                                       value=1,
                                                       options=[i * .01 for i in list(range(0, 225, 25))])
 
@@ -244,16 +245,16 @@ if document_type != '':
                 # Prompt for user to generate summary with current parameters.
                 st.write('### Generate Summary')
                 st.markdown('Click Summarize to Continue...')
-                st.button('Summarize', on_click=ClickButton, args=('summarize',))
+                st.button('Summarize', on_click=click_button, args=('summarize',))
 
                 if st.session_state.summarize:
                     with st.spinner('Wait for it...'):
                         time.sleep(5)
 
                     try:
-                        # Generate summary and display.
-                        prompt = ConstructPrompt(text_to_summarize, bullets_or_summary, max_bullets, paragraph_length)
-                        summary = ProduceSummary(prompt, gen_config)
+                        # Generate summary and display.1
+                        prompt = construct_prompt(text_to_summarize, bullets_or_summary, max_bullets, paragraph_length)
+                        summary = produce_summary(prompt, gen_config)
                         st.write('# Summary:')
                         st.write('')
                         st.markdown(summary)
