@@ -10,6 +10,7 @@ import numpy as np
 import regex as re
 
 st.title('Document Q&A')
+st.write('(in testing)')
 
 qa_prompt = '''The following is a document, and a question about the document:
 DOCUMENT: %s
@@ -18,6 +19,16 @@ INSTRUCTIONS: Please answer the users question using the document above. Keep yo
 document. If the document doesn't contain the facts to answer the question, answer "Information not found."
 ANSWER: 
 '''
+
+
+def click_button(button):
+    """Sets session state button variable to True after user clicks button.
+
+    Args:
+        button: st.session_state variable.
+    """
+    st.session_state[button] = True
+
 
 def update_question(question):
     """Sets st.session_state.question variable to the latest question entered by the user.
@@ -50,6 +61,7 @@ def get_chunks(chunk_approach, text, chunk_size, chunk_overlap):
 
     return text_splitter.split_text(text)
 
+
 def get_embedding(text):
     """Generates text embedding for given text input.
 
@@ -79,6 +91,7 @@ def find_best_chunk(question, dataframe):
     query_embedding = get_embedding(question)
     dot_products = np.dot(np.stack(dataframe['embedding']), query_embedding)
     idx = np.argmax(dot_products)
+
     return dataframe.iloc[idx]['text']
 
 
@@ -204,6 +217,8 @@ if document_type != '':
                                                options=[''] + list(range(0, 101, 1)))
 
             if chunk_size != '' and chunk_overlap != '':
+
+
                 st.write('generating chunks...')
                 chunks = get_chunks(d_model[chunk_setting], text_for_qa, chunk_size, chunk_overlap)
 
