@@ -174,7 +174,7 @@ if document_type != '':
                                                options=[''] + list(range(2, 16)))
 
             if 'Paragraph' in bullets_or_summary:
-                paragraph_length = st.select_slider('How many words for the paragraph?',
+                paragraph_length = st.select_slider('How many words for the paragraph (approx)?',
                                                     options=[''] + list(range(50, 1001, 50)))
 
             if (
@@ -204,42 +204,44 @@ if document_type != '':
                                                                 50)))
 
                     # Default to top-p token selection
-                    gen_config = {'max_output_tokens': final_max_tokens, 'top_p': .95, 'temperature': 1}
+                    gen_config = {'max_output_tokens': final_max_tokens}
 
                     # Option for alternate token sampling method.
                     token_choice_algo = st.selectbox('Which method would you like to use for token selection?',
                                                      ['Top-p', 'Top-k', 'Greedy'])
 
-                    if token_choice_algo == 'Greedy':
-                        gen_config = {'max_output_tokens': final_max_tokens}
+                    if token_choice_algo == 'Top-p':
 
-                    else:
+                        top_p = st.select_slider('What cumulative probability cutoff would you like to use?',
+                                                 value=.95,
+                                                 options=[
+                                                     np.round(i * .01, 2) for i in list(range(1, 101, 1))])
 
-                        if token_choice_algo == 'Top-p':
-
-                            top_p = st.select_slider('What cumulative probability cutoff would you like to use?',
-                                                     value=.95,
-                                                     options=[
-                                                         np.round(i * .01, 2) for i in list(range(1, 101, 1))])
-
-                            gen_config['top_p'] = top_p
-
-                        else:
-                            gen_config['top_k'] = 40
-
-                            top_k = st.select_slider('How many top tokens to choose from?',
-                                                     value=40,
-                                                     options=list(range(2, 41, 1)))
-
-                            gen_config['top_k'] = top_k
-
-                        gen_config['temperature'] = 1
+                        gen_config['top_p'] = top_p
 
                         final_temp = st.select_slider('What temperature setting you would like to use?',
                                                       value=1,
                                                       options=[i * .01 for i in list(range(0, 175, 25))])
 
                         gen_config['temperature'] = final_temp
+
+                    elif token_choice_algo == 'Top-k':
+
+                        top_k = st.select_slider('How many top tokens to choose from?',
+                                                 value=40,
+                                                 options=list(range(2, 41, 1)))
+
+                        gen_config['top_k'] = top_k
+
+                        final_temp = st.select_slider('What temperature setting you would like to use?',
+                                                      value=1,
+                                                      options=[i * .01 for i in list(range(0, 175, 25))])
+
+                        gen_config['temperature'] = final_temp
+
+                    else:
+
+                        gen_config = {'max_output_tokens': final_max_tokens}
 
                     # Dynamically display generation config. Display help link to educate user on parameter definitions.
                     st.write('current generation config:')
