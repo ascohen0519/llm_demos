@@ -4,6 +4,7 @@ import time
 import google.generativeai as genai
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
 import numpy as np
+import regex as re
 
 st.title('Document Summarizer')
 
@@ -111,7 +112,6 @@ document_type = st.selectbox('What type of document would you like to summarize?
                              help='You can either upload a PDF document, or manually copy & paste text to summarize')
 
 if document_type != '':
-    document = []
     text_to_summarize = ''
 
     # Convert PDF into single string of text. If PDF is multiple pages, concatenate all pages via '. ' first.
@@ -122,8 +122,7 @@ if document_type != '':
             with pdfplumber.open(uploaded_file) as file:
                 all_pages = file.pages
                 for i in all_pages:
-                    document.append(i.extract_text())
-        text_to_summarize += '. '.join(document)
+                    text_to_summarize += i.extract_text()
     else:
         out = st.text_area('Enter your text, then click Upload', '', height=200)
 
@@ -138,8 +137,15 @@ if document_type != '':
             text_to_summarize += out
 
     if len(text_to_summarize) > 0:
+        num_characters = len(text_to_summarize)
         num_tokens = model.count_tokens(text_to_summarize).total_tokens
-        st.write('The length of your document is %s tokens.' % '{:,}'.format(num_tokens))
+        num_words = len(re.findall("[a-zA-Z_]+", text_to_summarize))
+        st.markdown(
+            '''
+            <span style='font-size: 12px;'> 
+            The length of your document is: \t %s characters, %s tokens,  %s words
+            ''' % ('{:,}'.format(num_characters), '{:,}'.format(num_tokens), '{:,}'.format(num_words)),
+            unsafe_allow_html=True)
 
         # Ensures text length within gemini 1.5 flash max context window length.
         # https://ai.google.dev/gemini-api/docs/long-context
@@ -231,7 +237,7 @@ if document_type != '':
 
                         final_temp = st.select_slider('What temperature setting you would like to use?',
                                                       value=1,
-                                                      options=[i * .01 for i in list(range(0, 225, 25))])
+                                                      options=[i * .01 for i in list(range(0, 175, 25))])
 
                         gen_config['temperature'] = final_temp
 
