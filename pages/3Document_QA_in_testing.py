@@ -212,7 +212,7 @@ if document_type != '':
 
             else:
                 chunk_size = st.select_slider('How many characters per chunk?',
-                                               options=[''] + list(range(1, 2048, 1)))
+                                               options=[''] + list(range(1, 2001, 1)))
                 chunk_overlap = st.select_slider('How many characters to overlap between chunks?',
                                                options=[''] + list(range(0, 101, 1)))
 
