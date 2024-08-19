@@ -3,7 +3,7 @@ import google.generativeai as genai
 import time
 
 st.title('💬 LLM App Demos, by Aaron Cohen')
-st.caption('[source code](https://github.com/ascohen0519/llm_demos/tree/main/pages)')
+st.caption('[source code](https://github.com/ascohen0519/llm_demos/tree/main)')
 
 '### Instructions'
 '''
@@ -53,7 +53,6 @@ can customize your AI's name, avatar and desired creativity level.
 st.write('(testing in progress)')
 
 '''
-Upload PDFs or manually copy and paste a body of text. After a brief period, you'll be able to ask questions
-about your upload and receive answers. You can also set advanced parameters, including chunk
-size, chunk overlap, and how many potential answer results you would like to see (in progress).
+Upload PDFs or manually copy and paste a body of text. After a brief period, you'll be able to ask questions about your
+upload and receive answers. You can also set advanced parameters, including chunking method, size and overlap.
 '''
