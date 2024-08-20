@@ -1,6 +1,4 @@
 import time
-import os
-import joblib
 import streamlit as st
 import google.generativeai as genai
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
@@ -121,12 +119,19 @@ if ai_avatar != '' and user_avatar != '' and ai_name != '' and ai_creativity != 
         with st.chat_message('model', avatar=ai_avatar):
             message_placeholder = st.empty()
             full_response = ''
-            for chunk in response:
-                for ch in chunk.text.split(' '):
-                    full_response += ch + ' '
-                    time.sleep(0.05)
-                    message_placeholder.write(full_response + '▌')
-            message_placeholder.write(full_response)
+            st.write(response)
+            try:
+                for chunk in response:
+                    for ch in chunk.text.split(' '):
+                        full_response += ch + ' '
+                        time.sleep(0.05)
+                        message_placeholder.write(full_response + '▌')
+                message_placeholder.write(full_response)
+                # Append model response to history.
+                append_message('model', response.text)
+            except:
+                error_response = 'I can not answer that for you, please try another prompt. Thank you.'
+                message_placeholder.write(error_response)
+                # Append model response to history.
+                append_message('model', error_response)
 
-        # Append model response to history.
-        append_message('model', response.text)
