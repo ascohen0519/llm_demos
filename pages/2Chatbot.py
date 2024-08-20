@@ -119,7 +119,6 @@ if ai_avatar != '' and user_avatar != '' and ai_name != '' and ai_creativity != 
         with st.chat_message('model', avatar=ai_avatar):
             message_placeholder = st.empty()
             full_response = ''
-            st.write(response)
             try:
                 for chunk in response:
                     for ch in chunk.text.split(' '):
