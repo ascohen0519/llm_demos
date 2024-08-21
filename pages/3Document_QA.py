@@ -93,8 +93,8 @@ def build_prompt(document_chunk_list, question):
     qa_prompt += '\nQUESTION: %s \n'%question
 
     qa_prompt += ('\nINSTRUCTIONS: Please review documents in order and answer the users question as soon as you find' \
-                  'the answer. If none of the documents contain the facts to answer the question, answer "Information' \
-                  'not found.\n')
+                  ' the answer. Your response should only include the answer to the question. If you are unable to' \
+                  ' find the answer, respond "Information not found".\n')
 
     qa_prompt += '\nANSWER: '
 
