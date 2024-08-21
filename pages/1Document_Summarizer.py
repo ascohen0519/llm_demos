@@ -15,7 +15,6 @@ INSTRUCTIONS: Please write your summary in %s format. %s.
 SUMMARY:
 '''
 
-
 def click_button(button):
     """Sets session state button variable to True after user clicks button.
 
@@ -23,7 +22,6 @@ def click_button(button):
         button: st.session_state variable.
     """
     st.session_state[button] = True
-
 
 def construct_prompt(text_to_summarize, bullets_or_summary, max_bullets, paragraph_length):
     """Constructs summarization prompt from prompt template.
@@ -57,7 +55,6 @@ def construct_prompt(text_to_summarize, bullets_or_summary, max_bullets, paragra
     prompt = summary_prompt % (text_to_summarize, summary_format, length_limit)
     return prompt
 
-
 def produce_summary(prompt, gen_config):
     """ Produces summary based on text to summarize and user selected criteria for summarization.
 
@@ -79,7 +76,6 @@ def produce_summary(prompt, gen_config):
             HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE
         }
     ).text
-
 
 # Begin UI workflow for file/text input, summarization settings and displaying output.
 
@@ -139,7 +135,7 @@ if document_type != '':
     if len(text_to_summarize) > 0:
         num_characters = len(text_to_summarize)
         num_tokens = model.count_tokens(text_to_summarize).total_tokens
-        num_words = len(re.findall("[a-zA-Z_]+", text_to_summarize))
+        num_words = len(re.findall('[a-zA-Z_]+', text_to_summarize))
         st.markdown(
             '''
             <span style='font-size: 12px;'> 
@@ -260,7 +256,7 @@ if document_type != '':
                         time.sleep(5)
 
                     try:
-                        # Generate summary and display.1
+                        # Generate summary and display.
                         prompt = construct_prompt(text_to_summarize, bullets_or_summary, max_bullets, paragraph_length)
                         summary = produce_summary(prompt, gen_config)
                         st.write('# Summary:')
