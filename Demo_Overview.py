@@ -26,10 +26,21 @@ else:
 
 try:
     model.generate_content('hello')
-    st.write('Valid API key, thank you.')
+    st.markdown(
+        '''
+        <span style='color:#AED6F1;'>
+        Valid API Key, thank you.
+        ''',
+        unsafe_allow_html=True)
+    st.write('\n')
     st.session_state['can_run'] = True
 except:
-    ('This is not a valid API key, please try again')
+    st.markdown(
+        '''
+        <span style='color:#CD6155;'>
+        This is not a valid API key, please try again
+        ''',
+        unsafe_allow_html=True)
     st.stop()
 
 '#### Please choose a demo from the sidebar on the left:'
