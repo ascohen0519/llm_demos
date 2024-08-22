@@ -3,7 +3,7 @@ import google.generativeai as genai
 import pdfplumber
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
 from langchain.text_splitter import CharacterTextSplitter, RecursiveCharacterTextSplitter
-from llama_index.core.node_parser import SentenceSplitter
+# from llama_index.core.node_parser import SentenceSplitter
 import pandas as pd
 import time
 import numpy as np
@@ -212,16 +212,17 @@ if document_type != '':
         d_model = {
             'Auto': CharacterTextSplitter,
             'Fixed size chunking': CharacterTextSplitter,
-            'Recursive chunking': RecursiveCharacterTextSplitter,
-            'Sentence chunking': SentenceSplitter}
+            'Recursive chunking': RecursiveCharacterTextSplitter}
+            # TODO: investigate Streamlit broken pipe error for llama-index package.
+            #'Sentence chunking': SentenceSplitter}
 
         chunk_setting = st.selectbox('How would you like to process this document into chunks?',
                                        options=[
                                            '',
                                            'Auto',
                                            'Fixed size chunking',
-                                           'Recursive chunking',
-                                           'Sentence chunking'],
+                                           'Recursive chunking'],
+                                           # 'Sentence chunking'],
                                         help='''
                                             This determines the logic and parameters used to break your document into
                                             chunks.

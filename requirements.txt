@@ -7,4 +7,5 @@ google-generativeai~=0.7.2
 semantic_text_splitter~=0.14.1
 regex~=2024.5.15
 langchain~=0.2.3
-llama-index-core==0.10.68.post1
+# TODO: investigate Streamlit broken pipe error for llama-index package.
+# llama-index-core==0.10.68.post1
