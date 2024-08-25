@@ -1,6 +1,5 @@
 import streamlit as st
 import google.generativeai as genai
-import time
 
 st.title('💬 LLM App Demos, by Aaron Cohen')
 st.caption('[source code](https://github.com/ascohen0519/llm_demos/tree/main/pages)')
@@ -9,6 +8,8 @@ st.caption('[source code](https://github.com/ascohen0519/llm_demos/tree/main/pag
 '''
 In order to run the demos, you'll need to input your API key:
 '''
+
+# Prompt user to input API key.
 if 'gemini_api_key' not in st.session_state:
     st.session_state['gemini_api_key'] = False
 
@@ -17,30 +18,25 @@ st.session_state['gemini_api_key'] = st.text_input('Gemini API Key')
 if not st.session_state['gemini_api_key']:
     st.info('''
     Please add your Gemini API Key to Continue.
-    If you don\'t have one, you can get an API key [here](https://aistudio.google.com/app/apikey).
+    If you don\'t have one, you can create a new API key [here](https://aistudio.google.com/app/apikey).
     ''')
     st.stop()
 else:
     genai.configure(api_key=st.session_state['gemini_api_key'])
     model = genai.GenerativeModel('gemini-1.5-flash')
 
+# Test valid API key through successful model completion.
 try:
     model.generate_content('hello')
-    st.markdown(
-        '''
-        <span style='color:#AED6F1;'>
-        Valid API Key, thank you.
-        ''',
-        unsafe_allow_html=True)
+    st.info('''
+        Valid API key. Thank you.
+        ''')
     st.write('\n')
     st.session_state['can_run'] = True
 except:
-    st.markdown(
-        '''
-        <span style='color:#CD6155;'>
-        This is not a valid API key, please try again
-        ''',
-        unsafe_allow_html=True)
+    st.info('''
+        This is not a valid API key. Please try again.
+        ''')
     st.stop()
 
 '#### Please choose a demo from the sidebar on the left:'
@@ -48,22 +44,20 @@ except:
 '## Document Summarizer'
 
 '''
-Upload PDFs or manually copy and paste a body of text to be summarized. You can set parameters
-for the summary to be generated, including format and length, and advanced parameters including token sampling method
-and temperature.
+Upload a PDF or manually enter a body of text to be summarized. You can set parameters for your summary including
+format, length, and optional advanced parameters including token sampling method and temperature.
 '''
 
 '## Chatbot'
 
 '''
-Chat with AI about a topic of interest. The model will remember your conversation history throughout the session. You 
-can customize your AI's name, avatar and desired creativity level. 
+Chat with an AI chatbot about a topic of interest. The chatbot will remember your conversation history throughout the
+session. You can customize the chatbot's name, avatar and desired creativity level.
 '''
 
 '## Document Q&A'
-st.write('(testing in progress)')
 
 '''
-Upload PDFs or manually copy and paste a body of text. After a brief period, you'll be able to ask questions about your
-upload and receive answers. You can also set advanced parameters, including chunking method, size and overlap.
+Upload a PDF or manually enter a body of text to ask questions about. After a brief period, you'll be able to ask
+questions and receive answers. You can set parameters including document chunking method, size and overlap.
 '''
