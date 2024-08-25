@@ -1,6 +1,5 @@
 import streamlit as st
 import pdfplumber
-import time
 import google.generativeai as genai
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
 import numpy as np
@@ -8,12 +7,6 @@ import regex as re
 
 st.title('Document Summarizer')
 
-# Prompt template for summarization. Leverages 'stuff' approach, chunking -> map-reduce not yet supported.
-summary_prompt = '''The following is a document.
-DOCUMENT: %s
-INSTRUCTIONS: Please write your summary in %s format. %s.
-SUMMARY:
-'''
 
 def click_button(button):
     """Sets session state button variable to True after user clicks button.
@@ -21,42 +14,52 @@ def click_button(button):
     Args:
         button: st.session_state variable.
     """
+
     st.session_state[button] = True
+
 
 def construct_prompt(text_to_summarize, bullets_or_summary, max_bullets, paragraph_length):
     """Constructs summarization prompt from prompt template.
 
-    This is based on user uploaded document/text and user selection of summary format and length of summary section(s).
-
     Args:
-        text_to_summarize: Single string of text provided by user via PDF or manual entry.
-        bullets_or_summary: User selection on summary format.
+        text_to_summarize: Text string of document provided by user.
+        bullets_or_summary: User selected summary format.
         max_bullets: If user selects format with bullets, # of bullets selected.
         paragraph_length: If user selects format with paragraph, approximate word length selected.
 
     Returns:
         Final prompt to pass into model for summarization.
     """
-    paragraph_limit = 'the paragraph should be approximately %s words' % paragraph_length
+
     bullets_limit = 'please include %s bullets' % max_bullets
+
+    paragraph_limit = 'the paragraph should be approximately %s words' % paragraph_length
 
     if bullets_or_summary == 'Bullets':
         summary_format = 'bullet'
-        length_limit = bullets_limit
+        limits = bullets_limit
+
     elif bullets_or_summary == 'Paragraph':
         summary_format = 'a single paragraph'
-        length_limit = paragraph_limit
+        limits = paragraph_limit
+
     elif bullets_or_summary == 'Bullets & Paragraph':
         summary_format = 'a single paragraph and bullets'
-        length_limit = paragraph_limit + ', and ' + bullets_limit
+        limits = paragraph_limit + ', and ' + bullets_limit
+
     else:
         return 'error'
 
-    prompt = summary_prompt % (text_to_summarize, summary_format, length_limit)
-    return prompt
+    summarization_prompt = 'The following is a document:'
+    summarization_prompt += '\nDOCUMENT: %s' % text_to_summarize
+    summarization_prompt += '\nINSTRUCTIONS: Please write your summary in %s format. %s' % (summary_format, limits)
+    summarization_prompt += '\nSUMMARY:'
 
-def produce_summary(prompt, gen_config):
-    """ Produces summary based on text to summarize and user selected criteria for summarization.
+    return summarization_prompt
+
+
+def produce_summary(summarization_prompt, gen_config):
+    """ Produces summary based on full summarization prompt and generation config determined by user selection.
 
     Args:
         prompt: Model prompt including document text to summarize and summarization instructions based on user input.
@@ -66,8 +69,9 @@ def produce_summary(prompt, gen_config):
     Returns:
         Model completion (summary).
     """
+
     return model.generate_content(
-        contents=prompt,
+        contents=summarization_prompt,
         generation_config=genai.GenerationConfig(**gen_config),
         safety_settings={
             HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
@@ -76,6 +80,7 @@ def produce_summary(prompt, gen_config):
             HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE
         }
     ).text
+
 
 # Begin UI workflow for file/text input, summarization settings and displaying output.
 
@@ -88,33 +93,29 @@ if not st.session_state['can_run']:
     st.stop()
 
 # Configure Gemini 1.5 Flash model, instruct to be document summarizer.
-# https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#supported_models
 genai.configure(api_key=st.session_state['gemini_api_key'])
 model = genai.GenerativeModel(
     model_name='gemini-1.5-flash',
-    system_instruction=[
-        'You are a helpful document summarizer.',
-        'For any non-english queries, respond in the same language as the prompt unless \
-        otherwise specified by the user.'])
+    system_instruction=['You are a helpful document summarizer.'])
 
 # Prompt user to upload text for summarization via PDF import or manual text upload.
 st.write('''
             ### Upload Text
-            Upload your text via pdf or manual entry
+            Upload your text via PDF or manual entry
             ''')
 
 document_type = st.selectbox('What type of document would you like to summarize?',
-                             ['', 'Manually input text', 'PDF'],
+                             ['', 'PDF', 'Manually input text'],
                              help='You can either upload a PDF document, or manually copy & paste text to summarize')
 
 if document_type != '':
     text_to_summarize = ''
 
-    # Convert PDF into single string of text. If PDF is multiple pages, concatenate all pages via '. ' first.
+    # Convert PDF into single string of text.
     if document_type == 'PDF':
         uploaded_file = st.file_uploader('Choose your .pdf file', type='pdf')
         if uploaded_file:
-            st.success('Uploaded the file')
+            st.success('Successfully uploaded the file')
             with pdfplumber.open(uploaded_file) as file:
                 all_pages = file.pages
                 for i in all_pages:
@@ -128,8 +129,6 @@ if document_type != '':
         st.button('Upload', on_click=click_button, args=('text_entered',))
 
         if st.session_state.text_entered:
-            with st.spinner('Wait for it...'):
-                time.sleep(2)
             text_to_summarize += out
 
     if len(text_to_summarize) > 0:
@@ -138,21 +137,21 @@ if document_type != '':
         num_words = len(re.findall('[a-zA-Z_]+', text_to_summarize))
         st.markdown(
             '''
-            <span style='font-size: 12px;'> 
+            <span style='font-size: 12px; color:#AED6F1;'> 
             The length of your document is: \t %s characters, %s tokens,  %s words
             ''' % ('{:,}'.format(num_characters), '{:,}'.format(num_tokens), '{:,}'.format(num_words)),
             unsafe_allow_html=True)
 
-        # Ensures text length within gemini 1.5 flash max context window length.
+        # Ensures text within gemini 1.5 flash context window length, accounting for 100 char of prompt instructions.
         # https://ai.google.dev/gemini-api/docs/long-context
-        if num_tokens > 1000000:
+        if num_tokens > 999900:
             st.write('this document is too long, please upload another document.')
             st.stop()
 
         # Begin user input summarization parameters.
         st.write('''
                 ### Set Summarization Parameters
-                Decide the format and length for your summary. Set optional advanced parameters.
+                Choose the format and length for your summary. Set optional advanced parameters.
                 ''')
 
         bullets_or_summary = st.selectbox('What format would you like the summary in?',
@@ -165,11 +164,17 @@ if document_type != '':
 
             max_bullets, paragraph_length = 0, 0
 
-            if 'Bullets' in bullets_or_summary:
+            if bullets_or_summary == 'Bullets':
                 max_bullets = st.select_slider('How many bullets for the bullet list?',
                                                options=[''] + list(range(2, 16)))
 
-            if 'Paragraph' in bullets_or_summary:
+            elif bullets_or_summary == 'Paragraph':
+                paragraph_length = st.select_slider('How many words for the paragraph (approx)?',
+                                                    options=[''] + list(range(50, 1001, 50)))
+
+            else:
+                max_bullets = st.select_slider('How many bullets for the bullet list?',
+                                               options=[''] + list(range(2, 16)))
                 paragraph_length = st.select_slider('How many words for the paragraph (approx)?',
                                                     options=[''] + list(range(50, 1001, 50)))
 
@@ -202,7 +207,7 @@ if document_type != '':
                     # Default to top-p token selection
                     gen_config = {'max_output_tokens': final_max_tokens}
 
-                    # Option for alternate token sampling method.
+                    # Option for token sampling method.
                     token_choice_algo = st.selectbox('Which method would you like to use for token selection?',
                                                      ['Top-p', 'Top-k', 'Greedy'])
 
@@ -252,8 +257,6 @@ if document_type != '':
                 st.button('Summarize', on_click=click_button, args=('summarize',))
 
                 if st.session_state.summarize:
-                    with st.spinner('Wait for it...'):
-                        time.sleep(5)
 
                     try:
                         # Generate summary and display.
