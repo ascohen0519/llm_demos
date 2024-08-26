@@ -244,11 +244,11 @@ if document_type != '':
 
             else:
                 chunk_size = st.select_slider('How many characters per chunk?',
-                                              options=[''] + list(range(1, 2001, 10)))
+                                              options=[''] + list(range(50, 3001, 50)))
                 chunk_overlap = st.select_slider('How many characters to overlap between chunks?',
-                                                 options=[''] + list(range(0, 101, 5)))
+                                                 options=[''] + list(range(0, 301, 10)))
                 num_top_chunks = st.select_slider('How many chunks to retrieve for LLM in final prompt?',
-                                                  options=[''] + list(range(1, 10, 1)))
+                                                  options=[''] + list(range(1, 11, 1)))
 
             # Generate chunks and embedding vectors for each chunk
             if chunk_size != '' and chunk_overlap != '' and num_top_chunks != '':
@@ -263,8 +263,6 @@ if document_type != '':
                 st.session_state.embedded = True
 
                 # For user input question, find most relevant chunk(s), construct final LLM prompt, yield completion.
-                st.write('done, ready for Q&A')
-
                 st.session_state.question = st.text_input(
                     'Ask me a question about the contents of your document:')
 
