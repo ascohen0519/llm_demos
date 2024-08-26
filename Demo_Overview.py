@@ -6,18 +6,18 @@ st.caption('[source code](https://github.com/ascohen0519/llm_demos/tree/main/pag
 
 '### Instructions'
 '''
-In order to run the demos, you'll need to input your API key:
+In order to run the demos, you'll need to input your Google Cloud API key to run Gemini:
 '''
 
 # Prompt user to input API key.
 if 'gemini_api_key' not in st.session_state:
     st.session_state['gemini_api_key'] = False
 
-st.session_state['gemini_api_key'] = st.text_input('Gemini API Key')
+st.session_state['gemini_api_key'] = st.text_input('Gemini API Key', type='password')
 
 if not st.session_state['gemini_api_key']:
     st.info('''
-    Please add your Gemini API Key to Continue.
+    Please add your API Key to Continue.
     If you don\'t have one, you can create a new API key [here](https://aistudio.google.com/app/apikey).
     ''')
     st.stop()
