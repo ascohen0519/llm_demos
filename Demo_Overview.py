@@ -52,12 +52,14 @@ format, length, and optional advanced parameters including token sampling method
 
 '''
 Chat with an AI chatbot about a topic of interest. The chatbot will remember your conversation history throughout the
-session. You can customize the chatbot's name, avatar and desired creativity level.
+session. You can customize the chatbot's name, avatar and desired creativity level. Add your company name and logo
+to personalize the UI to your company.
 '''
 
 '## Document Q&A'
 
 '''
 Upload a PDF or manually enter a body of text to ask questions about. After a brief period, you'll be able to ask
-questions and receive answers. You can set parameters including document chunking method, size and overlap.
+questions and receive answers. You can set parameters including document chunking method, size and overlap, as well
+as text embedding model choice.
 '''
