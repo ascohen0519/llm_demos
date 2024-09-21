@@ -2,9 +2,9 @@ import time
 import streamlit as st
 import google.generativeai as genai
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
+from PIL import Image
 
 st.title('AI Chatbot')
-
 
 def append_message(role, content):
     """Appends message to message history.
@@ -48,17 +48,65 @@ if not st.session_state['can_run']:
     st.markdown('Please input a valid API key on the Demo Overview page')
     st.stop()
 
-# User selections.
+# Company name and logo customization.
 col1, col2 = st.columns(2)
 
+default_ai_avatar = ''
+
+company_name = col1.text_input('What is your companies name? (optional)', '')
+
+company_logo = col2.file_uploader('Add your company logo (optional), file type .png', type='png')
+css = '''
+<style>
+    [data-testid='stFileUploader'] {
+        width: max-content;
+    }
+    [data-testid='stFileUploader'] section {
+        padding: 0;
+        float: left;
+    }
+    [data-testid='stFileUploader'] section > input + div {
+        display: none;
+    }
+    [data-testid='stFileUploader'] section + div {
+        float: right;
+        padding-top: 0;
+    }
+</style>
+'''
+st.markdown(css, unsafe_allow_html=True)
+
+if company_logo:
+    company_logo_new = Image.open(company_logo)
+    company_logo_resized = company_logo_new.resize((200, 200))
+    default_ai_avatar = 'My company logo'
+else:
+    company_logo_resized = ''
+
+# Chatbot name and avatar customization.
+ai_avatar_list = ['🔆', '🌟', '✨', '🌈', '🚀', '🎉', '🏆', '🎱']
+
 ai_avatar = col1.selectbox('What would you like your Chatbot\'s avatar to be?',
-                           ['', '🔆', '🌟', '✨', '🌈', '🚀', '🎉', '🏆', '🎱'])
+                           [default_ai_avatar] + ai_avatar_list)
+
+if ai_avatar == 'My company logo':
+    if company_logo:
+        ai_avatar = company_logo_resized
+    else:
+        st.markdown(
+            '''
+            <span style='font-size: 12px; color:#C53F27;'>
+            Please upload your company logo, or choose an avatar from the list
+            ''', unsafe_allow_html=True)
+else:
+    pass
 
 user_avatar = col2.selectbox('What would you like your avatar to be?',
                              ['', '🐬', '🐶', '🐉', '🐈', '🐙', '🐘', '🐹', '🐸'])
 
 ai_name = col1.text_input('What would you like your Chatbot\'s name to be?', '')
 
+# Model temperature / token selection method customization.
 ai_creativity = col2.selectbox('How creative would you like your Chatbot to be?',
                                ['', 'Not creative at all', 'Moderately creative', 'Very creative'],
                                help='''
@@ -68,15 +116,29 @@ ai_creativity = col2.selectbox('How creative would you like your Chatbot to be?'
 
 d_avatar = {'model': ai_avatar, 'user': user_avatar}
 
-# If all choices selected, define generation config, initiate model and open chat window.
+# If all choices selected: define generation config, initiate model and open chat window.
 if ai_avatar != '' and user_avatar != '' and ai_name != '' and ai_creativity != '':
+
+    st.markdown("""<p style="height:2px;border:none;color:#AED6F1;background-color:#AED6F1;" /> """, unsafe_allow_html=True)
 
     # User entered creativity determines gen config temperature and top-p.
     d_creativity_temp = {'Not creative at all': 0, 'Moderately creative': .75, 'Very creative': 1.5}
     d_creativity_topp = {'Not creative at all': 0, 'Moderately creative': .5, 'Very creative': .95}
     gen_config = {'temperature': d_creativity_temp[ai_creativity], 'top_p': d_creativity_topp[ai_creativity]}
 
-    st.write('### Chat with AI')
+    # Set chatbot header to default or customized to Company.
+    col1, col2 = st.columns([10, 1])
+
+    if company_name:
+        chatbot_name = company_name + ' Chatbot'
+    else:
+        chatbot_name = 'Chat with AI'
+    col1.write('### %s'%(chatbot_name))
+
+    if company_logo_resized != '':
+        col2.image(company_logo_resized)
+    else:
+        pass
 
     # If first run, instantiate model and create empty list to append future prompts for ongoing context.
     if 'ran' not in st.session_state:
@@ -93,7 +155,11 @@ if ai_avatar != '' and user_avatar != '' and ai_name != '' and ai_creativity != 
             system_instruction='You are a general purpose chatbot. Your name is %s' % ai_name)
 
         # Display welcome message
-        intro = 'Hello, my name is %s, how may I help you today?' % ai_name
+        if company_name:
+            ai_name_string = ai_name + ', a general purpose chatbot brought to you by ' + company_name
+        else:
+            ai_name_string = ai_name
+        intro = 'Hello, my name is %s, how may I help you today?' % ai_name_string
         append_message('model', intro)
         st.session_state.ran = True
 
