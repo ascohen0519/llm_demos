@@ -193,7 +193,7 @@ if document_type != '':
                 gen_config = {'max_output_tokens': default_max_tokens}
 
                 # Optional input for advanced parameters (max tokens, token sampling, temperature).
-                with st.expander('Advanced Parameters (optional)', expanded=True):
+                with st.expander('Advanced Parameters (optional)'):
 
                     # Option to increase max tokens.
                     final_max_tokens = st.select_slider('What is the max number of tokens for the entire summary?',
