@@ -271,7 +271,7 @@ if document_type != '':
             # Generate chunks and embedding vectors for each chunk
             if chunk_size != '' and chunk_overlap != '' and num_top_chunks != '':
 
-                with st.expander('Advanced settings (optional)'):
+                with st.expander('Embedding model and parameter selection (optional)'):
 
                     embedding_model_choice = st.selectbox(
                         'Choose your embedding model',
