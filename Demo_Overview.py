@@ -41,11 +41,12 @@ except:
 
 '#### Please choose a demo from the sidebar on the left:'
 
-'## Document Summarizer'
+'## RAG Document Q&A'
 
 '''
-Upload a PDF or manually enter a body of text to be summarized. You can set parameters for your summary including
-format, length, and optional advanced parameters including token sampling method and temperature.
+Upload a PDF or manually enter a body of text to ask questions about. After a brief period, you'll be able to ask
+questions and receive answers. You can set parameters including document chunking method, size and overlap, as well
+as text embedding model choice.
 '''
 
 '## Chatbot'
@@ -56,10 +57,13 @@ session. You can customize the chatbot's name, avatar and desired creativity lev
 to personalize the UI to your company.
 '''
 
-'## Document Q&A'
+'## Document Summarizer'
 
 '''
-Upload a PDF or manually enter a body of text to ask questions about. After a brief period, you'll be able to ask
-questions and receive answers. You can set parameters including document chunking method, size and overlap, as well
-as text embedding model choice.
+Upload a PDF or manually enter a body of text to be summarized. You can set parameters for your summary including
+format, length, and optional advanced parameters including token sampling method and temperature.
 '''
+
+
+
+
