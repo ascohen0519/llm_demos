@@ -10,7 +10,7 @@ import vertexai
 from vertexai.language_models import TextEmbeddingInput, TextEmbeddingModel
 from google.oauth2 import service_account
 
-st.title('Document Q&A')
+st.title('RAG Document Q&A')
 
 vertexai.init(
     project='gen-lang-client-0350351837',
@@ -242,25 +242,28 @@ if document_type != '':
             'Fixed size chunking': CharacterTextSplitter,
             'Recursive chunking': RecursiveCharacterTextSplitter}
 
-        chunk_setting = st.selectbox('How would you like to process this document into chunks?',
+        customize_setting = st.selectbox('How would you like to set chunking and embedding parameters?',
                                      options=[
                                          '',
                                          'Auto',
-                                         'Fixed size chunking',
-                                         'Recursive chunking'],
+                                         'Customized'],
                                      help='''
                                             This determines the logic and parameters used to break your document into
-                                            chunks.
+                                            chunks, and the model and parameters used for document and query embeddings.
                                             ''')
 
-        if chunk_setting != '':
+        if customize_setting != '':
 
-            if chunk_setting == 'Auto':
+            if customize_setting == 'Auto':
                 chunk_size = 1024
                 chunk_overlap = 20
                 num_top_chunks = 3
+                embedding_model_choice = 'text-embedding-004'
+                dimensionality = 768
 
             else:
+                chunk_method = st.selectbox('How would you like to process the document into chunks',
+                                                options=['', 'Fixed size chunking', 'Recursive chunking'])
                 chunk_size = st.select_slider('How many characters per chunk?',
                                               options=[''] + list(range(50, 3001, 50)))
                 chunk_overlap = st.select_slider('How many characters to overlap between chunks?',
@@ -268,63 +271,62 @@ if document_type != '':
                 num_top_chunks = st.select_slider('How many chunks to retrieve for LLM in final prompt?',
                                                   options=[''] + list(range(1, 11, 1)))
 
+                embedding_model_choice = st.selectbox(
+                    'Choose your embedding model',
+                    ['', 'text-embedding-004', 'text-multilingual-embedding-002', 'text-embedding-preview-0815'])
+
+                dimensionality = st.select_slider('What dimensionality would you like to use for embeddings?',
+                                                  options=[''] + list(range(1, 769)))
+
             # Generate chunks and embedding vectors for each chunk
-            if chunk_size != '' and chunk_overlap != '' and num_top_chunks != '':
+            if (chunk_size != ''
+                and chunk_overlap != ''
+                and num_top_chunks != ''
+                and embedding_model_choice != ''
+                and dimensionality != ''):
 
-                with st.expander('Embedding model and parameter selection (optional)'):
+                st.write('generating chunks...')
+                chunks = get_chunks(d_model[chunk_method], text_for_qa, chunk_size, chunk_overlap)
 
-                    embedding_model_choice = st.selectbox(
-                        'Choose your embedding model',
-                        ['text-embedding-004', 'text-multilingual-embedding-002', 'text-embedding-preview-0815'])
+                st.write('generating embeddings (this may take a minute)...')
 
-                    dimensionality = st.select_slider('What dimensionality would you like to use for embeddings?',
-                                                      value=768,
-                                                      options=list(range(1, 769)))
+                st.session_state.df = pd.DataFrame(chunks, columns=['text'])
+                st.session_state.df['embedding'] = st.session_state.df.apply(
+                    lambda x: get_embedding(
+                        text=x.text,
+                        embedding_model_choice=embedding_model_choice,
+                        dimensionality=dimensionality,
+                        retrieval_type='RETRIEVAL_DOCUMENT'),
+                    axis=1)
+                st.session_state.embedded = True
 
-                if embedding_model_choice != '' and dimensionality != '':
+                # For user input question, find most relevant chunk(s), construct final LLM prompt, yield completion.
+                st.session_state.question = st.text_input(
+                    'Ask me a question about the contents of your document:')
 
-                    st.write('generating chunks...')
-                    chunks = get_chunks(d_model[chunk_setting], text_for_qa, chunk_size, chunk_overlap)
+                if st.session_state.question != '':
+                    document_chunk_list = find_best_chunk(
+                        st.session_state.question, embedding_model_choice, dimensionality, st.session_state.df,
+                        num_top_chunks)
 
-                    st.write('generating embeddings (this may take a minute)...')
+                    prompt = construct_prompt(document_chunk_list, st.session_state.question)
+                    st.session_state.answer = produce_answer(prompt)
 
-                    st.session_state.df = pd.DataFrame(chunks, columns=['text'])
-                    st.session_state.df['embedding'] = st.session_state.df.apply(
-                        lambda x: get_embedding(
-                            text=x.text,
-                            embedding_model_choice=embedding_model_choice,
-                            dimensionality=dimensionality,
-                            retrieval_type='RETRIEVAL_DOCUMENT'),
-                        axis=1)
-                    st.session_state.embedded = True
+                    st.markdown(st.session_state.answer)
 
-                    # For user input question, find most relevant chunk(s), construct final LLM prompt, yield completion.
-                    st.session_state.question = st.text_input(
-                        'Ask me a question about the contents of your document:')
+                    st.session_state.answer = ''
+                    st.session_state.question = ''
 
-                    if st.session_state.question != '':
-                        document_chunk_list = find_best_chunk(
-                            st.session_state.question, embedding_model_choice, dimensionality, st.session_state.df,
-                            num_top_chunks)
-
-                        prompt = construct_prompt(document_chunk_list, st.session_state.question)
-                        st.session_state.answer = produce_answer(prompt)
-
-                        st.markdown(st.session_state.answer)
-
-                        st.session_state.answer = ''
-                        st.session_state.question = ''
-
-                        # Debugging shows summary of chunks created, relevant chunks identified, and displays final prompt.
-                        with st.expander('debug'):
-                            st.write('Embedding model choice: %s' % embedding_model_choice)
-                            st.write('Embedding dimensionality: %s' % str(dimensionality))
-                            st.write('Chunk size setting: %s' % chunk_size)
-                            st.write('Chunk overlap setting: %s' % chunk_overlap)
-                            st.write('Number of chunks generated: %s' % len(chunks))
-                            st.write(
-                                'Avg character length of generated chunk: %s' % round(num_characters / len(chunks), 1))
-                            st.write('first, second and last embedding:')
-                            st.write(pd.concat([st.session_state.df.head(2), st.session_state.df.tail(1)]))
-                            st.write('Final prompt:')
-                            st.write(prompt)
+                    # Debugging shows summary of chunks created, relevant chunks identified, and displays final prompt.
+                    with st.expander('debug'):
+                        st.write('Embedding model choice: %s' % embedding_model_choice)
+                        st.write('Embedding dimensionality: %s' % str(dimensionality))
+                        st.write('Chunk size setting: %s' % chunk_size)
+                        st.write('Chunk overlap setting: %s' % chunk_overlap)
+                        st.write('Number of chunks generated: %s' % len(chunks))
+                        st.write(
+                            'Avg character length of generated chunk: %s' % round(num_characters / len(chunks), 1))
+                        st.write('first, second and last embedding:')
+                        st.write(pd.concat([st.session_state.df.head(2), st.session_state.df.tail(1)]))
+                        st.write('Final prompt:')
+                        st.write(prompt)
